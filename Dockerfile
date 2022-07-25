@@ -2,7 +2,10 @@ FROM debian:bullseye-slim
 
 # Load all the build args, and then set KEA_EXECUTABLE as an ENV to be used
 # during runtime.
-ARG DEBIAN_FRONTEND=noninteractive KEA_VERSION KEA_DL_BASE_URL KEA_EXECUTABLE
+ARG DEBIAN_FRONTEND=noninteractive
+ARG KEA_VERSION
+ARG KEA_DL_BASE_URL
+ARG KEA_EXECUTABLE
 ENV KEA_EXECUTABLE=$KEA_EXECUTABLE
 
 # Install some libraries needed during install.

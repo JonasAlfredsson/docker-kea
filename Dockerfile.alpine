@@ -6,7 +6,9 @@ FROM alpine:3.15
 
 # Load all the build args, and then set KEA_EXECUTABLE as an ENV to be used
 # during runtime.
-ARG KEA_VERSION KEA_DL_BASE_URL KEA_EXECUTABLE
+ARG KEA_VERSION
+ARG KEA_DL_BASE_URL
+ARG KEA_EXECUTABLE
 ENV KEA_EXECUTABLE=$KEA_EXECUTABLE
 
 # Install some libraries needed during install.
