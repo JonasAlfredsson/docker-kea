@@ -23,7 +23,7 @@ KEA_DL_BASE_URL="https://dl.cloudsmith.io/public/isc/kea-$(echo "${KEA_VERSION}"
 
 # Feed all the relevant information to the `docker build` command, and tag it
 # with something appropriate.
-docker build -f Dockerfile"$(if [ -n "${ALPINE_TAG}" ]; then echo ".alpine"; fi)" \
+docker build -f Dockerfile"$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     -t "kea-${KEA_EXECUTABLE}:local$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     --build-arg KEA_VERSION=${KEA_VERSION} \
     --build-arg KEA_DL_BASE_URL=${KEA_DL_BASE_URL} \
