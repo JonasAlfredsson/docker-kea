@@ -1,0 +1,57 @@
+FROM alpine:3.15
+# Check the cloudsmith repo for which versions of Alpine that the packages are
+# available for:
+# https://cloudsmith.io/~isc/repos/kea-2-1/packages/?q=distribution%3Aalpine&sort=-date
+
+
+# Load all the build args, and then set KEA_EXECUTABLE as an ENV to be used
+# during runtime.
+ARG KEA_VERSION KEA_DL_BASE_URL KEA_EXECUTABLE
+ENV KEA_EXECUTABLE=$KEA_EXECUTABLE
+
+# Install some libraries needed during install.
+RUN set -e && apk add --no-cache \
+        ca-certificates \
+        curl \
+    && \
+# Download the signing key.
+    curl -1sLf "${KEA_DL_BASE_URL}/rsa.CC39698D5EDFF644.key" > "/etc/apk/keys/kea-2-1@isc-CC39698D5EDFF644.rsa.pub" && \
+# Add the correct repository.
+    echo "${KEA_DL_BASE_URL}/alpine/v$(cat /etc/alpine-release | cut -d. -f 1-2)/main" >> /etc/apk/repositories && \
+    apk update && \
+# Install the correct components depending on which executable we are targeting.
+# More information about the packages: https://kb.isc.org/docs/isc-kea-packages
+    if [ "${KEA_EXECUTABLE}" = "ctrl-agent" ]; then \
+        apk add --no-cache \
+            isc-kea-common=~"${KEA_VERSION}" \
+            isc-kea-http=~"${KEA_VERSION}" \
+            isc-kea-dhcp-ddns=~"${KEA_VERSION}" \
+            isc-kea-"${KEA_EXECUTABLE}"=~"${KEA_VERSION}" ; \
+    elif [ "${KEA_EXECUTABLE}" = "dhcp4" -o "${KEA_EXECUTABLE}" = "dhcp6" ]; then \
+        apk add --no-cache \
+            isc-kea-common=~"${KEA_VERSION}" \
+            isc-kea-http=~"${KEA_VERSION}" \
+            isc-kea-dhcp-ddns=~"${KEA_VERSION}" \
+            isc-kea-hook-ha=~"${KEA_VERSION}" \
+            isc-kea-hook-lease-cmds=~"${KEA_VERSION}" \
+            isc-kea-"${KEA_EXECUTABLE}"=~"${KEA_VERSION}" ; \
+    else \
+        echo "Unknown or unsupported Kea executable: ${KEA_EXECUTABLE}"; exit 1; \
+    fi && \
+# Remove everything that is no longer necessary.
+    apk del \
+        curl \
+    && \
+# Create expected directories.
+    mkdir /entrypoint.d \
+          /kea \
+          /kea/config \
+          /kea/leases \
+          /kea/socket \
+          /kea/log
+
+# Copy the entrypoint script and just set "-V" as the command so the users must
+# define the path to their own config.
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD [ "-V" ]
