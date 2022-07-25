@@ -1,0 +1,16 @@
+// Below an example of a simple IPv6 subnet declaration.
+// The settings listed here are already explained in the subnets4.json with the
+// only difference being that they are using IPv6 addresses instead.
+"subnet6": [
+    {
+        "subnet": "2001:db8:1::/64",
+        "pools": [ { "pool": "2001:db8:1::/80" } ],
+
+        "reservations": [
+            {
+                "hw-address": "00:01:02:03:04:05",
+                "ip-addresses": [ "2001:db8:1::101" ]
+            }
+        ]
+    }
+],

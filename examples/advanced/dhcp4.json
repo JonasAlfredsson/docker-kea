@@ -1,0 +1,147 @@
+// This is a more advanced IPv4 server configuration which intends
+// to show more features available while still being useful as a
+// working example.
+{
+    "Dhcp4": {
+        "interfaces-config": {
+            // It is recommended to specify the actual interface you want to
+            // listen on, but it is possible to bind to all present.
+            "interfaces": [ "*" ],
+
+            // By default Kea listens using raw sockets. This ensures all
+            // packets, including those sent by directly connected clients that
+            // don't have an IPv4 address yet, are received. However, if your
+            // traffic is always relayed, it is often better to use regular
+            // UDP sockets. If you want to do that, set this to "udp".
+            "dhcp-socket-type": "raw"
+        },
+
+        // Kea supports control channel, which is a way to receive management
+        // commands while the server is running. This is a Unix domain socket
+        // that receives commands formatted in JSON, e.g. config-set (which sets
+        // new configuration), config-reload (which tells Kea to reload its
+        // configuration from file), statistic-get (to retrieve statistics) and
+        // many more.
+        "control-socket": {
+            "socket-type": "unix",
+            "socket-name": "/kea/socket/dhcp4.socket"
+        },
+
+        // Specifies credentials to access lease database.
+        "lease-database": {
+            // Lease database backend type, i.e. "memfile", "mysql",
+            // "postgresql" or "cql".
+            "type": "memfile",
+
+            // Name of the lease file. In case of database it specifies the
+            // database name.
+            "name": "/kea/leases/dhcp4.csv",
+
+            // memfile backend specific parameter specifying the interval
+            // in seconds at which lease file should be cleaned up.
+            "lfc-interval": 3600
+        },
+
+        "multi-threading": {
+            // By default Kea processes packets on a single thread (default
+            // 'false' value for this option), and that is probably more than
+            // enough for any server that don't expect more than hundred lease
+            // request per second. Keeping it to 'false' will also make it
+            // easier to read logs.
+            "enable-multi-threading": true,
+
+            // When multi-threading is enabled, Kea will process packets on
+            // multiple threads configurable through this option. The value
+            // must be a positive integer (0 means auto detect).
+            // ISC has done some performance testing and found that the best
+            // number here depends on what backend you are using:
+            // - memfile    = 4
+            // - mysql      = 12
+            // - postgresql = 8
+            "thread-pool-size": 4,
+
+            // When multi-threading is enabled, Kea will read packets from the
+            // interface and append a working item to the thread pool. This
+            // option configures the maximum number of items that can be queued.
+            // The value must be a positive integer (0 means unlimited).
+            // The ISC performance testing came up with the following equations
+            // for best results depending on the backend you are using:
+            // - memfile    = 7 * thread-pool-size
+            // - mysql      = 66 * thread-pool-size
+            // - postgresql = 11 * thread-pool-size
+            "packet-queue-size": 28
+        },
+
+        // Global value which limits the number of client packets (e.g.
+        // DHCPREQUESTs) that may be parked while waiting for hook library
+        // work to complete, prior to a response (e.g. DHCPACK) being sent
+        // back to the client.
+        "parked-packet-limit": 128,
+
+        // Addresses will be assigned with a lifetime of 6000 seconds.
+        // The client is told to start renewing after 900 seconds. If the server
+        // does not respond within 1800 seconds of the lease being granted,
+        // client is supposed to start REBIND procedure (emergency renewal that
+        // allows switching to a different server).
+        "valid-lifetime": 6000,
+        "renew-timer": 900,
+        "rebind-timer": 1800,
+
+        // You can include a separate JSON file which will be placed inline with
+        // the code here. This allows us to split this section into its own file
+        // which makes this one easier to read.
+        <?include "/kea/config/subnets4.json"?>
+
+        "loggers": [
+            {
+                // Configure the DHCPv4 server to write all log messages (on
+                // severity INFO or more) to both stdout and to a file.
+                "name": "kea-dhcp4",
+                "output_options": [
+                    {
+                        "output": "stdout",
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    },
+                    {
+                        // Specifies the output file. There are several special
+                        // values supported:
+                        // - stdout (prints on standard output)
+                        // - stderr (prints on standard error)
+                        // - syslog (logs to syslog)
+                        // - syslog:name (logs to syslog using specified name)
+                        // Any other value is considered a name of the file
+                        "output": "/kea/log/dhcp4.log",
+
+                        // This governs whether the log output is flushed to
+                        // disk immediately after every write. Doing this will
+                        // reduce performance but will ensure that if the
+                        // program terminates abnormally, all messages up to
+                        // the point of termination are present in the file.
+                        // Default is 'true'.
+                        "flush": true,
+
+                        // This specifies the maximum size of the file before
+                        // it is rotated.
+                        "maxsize": 1048576,
+
+                        // This specifies the maximum number of rotated files
+                        // to keep.
+                        "maxver": 8,
+
+                        // We use pattern to specify custom log message layout.
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    }
+                ],
+
+                // This specifies the severity of log messages to keep.
+                // Supported values are: FATAL, ERROR, WARN, INFO, DEBUG
+                "severity": "INFO",
+
+                // If DEBUG level is specified, this value is used. 0 is least
+                // verbose, 99 is most verbose. Be cautious, Kea can generate
+                // lots and lots of logs if told to do so.
+                "debuglevel": 0
+            }
+        ]
+    }
+}

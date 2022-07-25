@@ -1,0 +1,48 @@
+version: '2'
+# This is an advanced setup which starts both the IPv4 and the IPv6 Kea DHCP
+# services, along with the Control Agent service that can forward HTTP API
+# requests to the relevant locations.
+# The REST API will be available on port 8000 on the localhost address.
+# !! ------------------------------------------------------------------------ !!
+# Both of the DHCP services use the 'host' network so they may actually serve
+# real leases. Docker does not handle routing of IPv6 by default, so it is the
+# only option for that container unless you reconfiger the Docker daemon.
+# !! ------------------------------------------------------------------------ !!
+services:
+  dhcp4:
+    image: jonasal/kea-dhcp4:2
+    restart: unless-stopped
+    network_mode: host
+    command: -c /kea/config/dhcp4.json
+    volumes:
+      - ./advanced:/kea/config
+      - sockets:/kea/socket
+      - leases:/kea/leases
+      - ./logs:/kea/log
+
+  dhcp6:
+    image: jonasal/kea-dhcp6:2
+    restart: unless-stopped
+    network_mode: host
+    command: -c /kea/config/dhcp6.json
+    volumes:
+      - ./advanced:/kea/config
+      - sockets:/kea/socket
+      - leases:/kea/leases
+      - ./logs:/kea/log
+
+  ctrl-agent:
+    image: jonasal/kea-ctrl-agent:2
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    command: -c /kea/config/ctrl-agent.json
+    volumes:
+      - ./advanced:/kea/config
+      - sockets:/kea/socket
+      - leases:/kea/leases
+      - ./logs:/kea/log
+
+volumes:
+  sockets:
+  leases:

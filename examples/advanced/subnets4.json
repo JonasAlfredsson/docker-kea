@@ -1,0 +1,40 @@
+// Below is an example of a simple IPv4 subnet declaration.
+"subnet4": [
+    {
+        // This defines the whole subnet. Kea will use this information to
+        // determine where the clients are connected. This is the whole
+        // subnet in your network. This is mandatory parameter for each
+        // subnet.
+        "subnet": "172.17.0.0/16",
+
+        // Pools define the actual part of your subnet that is governed
+        // by Kea. Technically this is an optional parameter, but it's
+        // almost always needed for DHCP to do its job. If you omit it,
+        // clients won't be able to get addresses, unless there are
+        // host reservations defined for them.
+        "pools": [ { "pool": "172.17.0.1 - 172.17.0.100" } ],
+
+        // Kea offers host reservations mechanism. Kea supports reservations
+        // by several different types of identifiers: hw-address
+        // (hardware/MAC address of the client), duid (DUID inserted by the
+        // client), client-id (client identifier inserted by the client) and
+        // circuit-id (circuit identifier inserted by the relay agent).
+        //
+        // Kea also support flexible identifier (flex-id), which lets you
+        // specify an expression that is evaluated for each incoming packet.
+        // Resulting value is then used for as an identifier.
+        //
+        // Note that reservations are subnet-specific in Kea. This is
+        // different than ISC DHCP. Keep that in mind when migrating
+        // your configurations.
+        "reservations": [
+            // This is a reservation for a specific hardware/MAC address.
+            // It's a rather simple reservation: just an address and nothing
+            // else.
+            {
+                "hw-address": "1a:1b:1c:1d:1e:1f",
+                "ip-address": "172.17.0.1"
+            }
+        ]
+    }
+],

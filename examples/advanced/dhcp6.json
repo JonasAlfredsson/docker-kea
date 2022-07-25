@@ -1,0 +1,71 @@
+// This is a more advanced IPv6 server configuration which intends to show more
+// features available while still being useful as a working example.
+// Most of the settings listed here are already explained in the IPv4 config,
+// so the comments in this file are only present for the settings that differ.
+{
+    "Dhcp6": {
+        "interfaces-config": {
+            "interfaces": [ "*" ]
+        },
+
+        "control-socket": {
+            "socket-type": "unix",
+            "socket-name": "/kea/socket/dhcp6.socket"
+        },
+
+        "lease-database": {
+            "type": "memfile",
+            "name": "/kea/leases/dhcp6.csv",
+            "lfc-interval": 3600
+        },
+
+        "multi-threading": {
+            "enable-multi-threading": true,
+
+            // ISC has done some performance testing and found that the best
+            // number here depends on what backend you are using:
+            // - memfile    = 4
+            // - mysql      = 12
+            // - postgresql = 6
+            "thread-pool-size": 4,
+
+            // The ISC performance testing came up with the following equations
+            // for best results depending on the backend you are using:
+            // - memfile    = 150 * thread-pool-size
+            // - mysql      = 200 * thread-pool-size
+            // - postgresql = 11 * thread-pool-size
+            "packet-queue-size": 600
+        },
+
+        "parked-packet-limit": 128,
+        "valid-lifetime": 6000,
+        "renew-timer": 900,
+        "rebind-timer": 1800,
+
+        // This is unique for the IPv6 DHCP instance.
+        <?include "/kea/config/subnets6.json"?>
+
+        "loggers": [
+            {
+                // Configure the DHCPv6 server to write all log messages (on
+                // severity INFO or more) to both stdout and to a file.
+                "name": "kea-dhcp6",
+                "output_options": [
+                    {
+                        "output": "stdout",
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    },
+                    {
+                        "output": "/kea/log/dhcp6.log",
+                        "flush": false,
+                        "maxsize": 1048576,
+                        "maxver": 8,
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    }
+                ],
+                "severity": "INFO",
+                "debuglevel": 0
+            }
+        ]
+    }
+}
