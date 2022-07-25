@@ -1,0 +1,48 @@
+// This is a very simple configuration of an IPv4 DHCP server.
+// The most important settings are here, and the subnet defined _should_ be
+// compatible with the default Docker bridge network unless you have modified
+// your Docker config. This is done so it should be easy to test the DHCP
+// functionality without worrying that "real" lease offers leaves your machine.
+{
+    // Here the configuration for the DHCP4 service starts.
+    "Dhcp4": {
+        // It is highly recommended that you explicitly specify which interface
+        // you want Kea to listen to, but right now we just want to respond on
+        // any interface.
+        "interfaces-config": {
+            "interfaces": [ "*" ],
+            "dhcp-socket-type": "raw"
+        },
+
+        // This defines for how long a lease is valid, and how often clients
+        // have to renew to keep their current IP.
+        "valid-lifetime": 4000,
+        "renew-timer": 1000,
+        "rebind-timer": 2000,
+
+        // The pool defines which range of IP addresses the DHCP may hand out.
+        // If there is no pool then only static leases (reservations) may be
+        // handed out.
+        "subnet4": [{
+           "subnet": "172.17.0.0/16",  // Required
+           "pools": [ { "pool": "172.17.0.2-172.17.0.10" } ]
+        }],
+
+        // No static leases (reservations) are defined here.
+        "reservations": [],
+
+       // Define a logger which outputs to stdout.
+       "loggers": [
+           {
+               "name": "kea-dhcp4",
+               "output_options": [
+                   {
+                       "output": "stdout",
+                       "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                   }
+                ],
+               "severity": "INFO"
+            }
+        ]
+    }
+}
