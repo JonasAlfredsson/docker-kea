@@ -40,6 +40,13 @@ run4:
 		kea-dhcp4:local \
 		-c /kea/config/dhcp4.json
 
+.PHONY: run4-alpine
+run4-alpine:
+	docker run -it --rm \
+		-v $(PWD)/examples/simple:/kea/config \
+		kea-dhcp4:local-alpine \
+		-c /kea/config/dhcp4.json
+
 # If you have managed to start the run4 target you may see if the DHCP server
 # responds by calling this. It should print a detailed response and the logs
 # in Kea should move if done correctly.
