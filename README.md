@@ -17,14 +17,15 @@ To keep the same modularity in the Docker case this repo produces three
 different images which are tagged with the same version as the Kea service
 running inside:
 
-- `jonasal/kea-dhcp4:<version>`
-- `jonasal/kea-dhcp6:<version>`
-- `jonasal/kea-ctrl-agent:<version>`
+- [`jonasal/kea-dhcp4:<version>`][12]
+- [`jonasal/kea-dhcp6:<version>`][13]
+- [`jonasal/kea-ctrl-agent:<version>`][14]
 
 It is possible to define how strict you want to lock down the version so `2`,
 `2.1` or `2.1.7` all work and the less specific tags will move to point to the
 latest of the more specific ones.
 
+> There is no [`:latest`][15] tag since Kea updates may break things.
 
 ## Usage
 
@@ -47,7 +48,7 @@ the entire `kea/` folder, however, then you need to manually create the
 subfolders since Kea is not able to do so itself. See the advanced
 [docker-compose](./examples/docker-compose.yaml) example for inspiration.
 
-### DHCP Server
+### The DHCP Server
 Each image/service needs its own specific configuration file, so you will need
 to create one for each service you want to run. There is a very simple config
 for the `dhcp4` service in the [simple/](./examples/simple/dhcp4.json) folder,
@@ -103,7 +104,7 @@ file for how it is done there. Then you should be able to serve leases on the
 network the host machine is connected to.
 
 
-### Control Agent
+### The Control Agent
 The DHCP services expose an API that may be used if the `control-socket`
 setting is defined:
 
@@ -149,3 +150,7 @@ More information about this may be found in the Management API section of the
 [9]: https://gist.github.com/mikejoh/04978da4d52447ead7bdd045e878587d
 [10]: https://docs.docker.com/config/daemon/ipv6/
 [11]: https://github.com/robbertkl/docker-ipv6nat
+[12]: https://hub.docker.com/repository/docker/jonasal/kea-dhcp4
+[13]: https://hub.docker.com/repository/docker/jonasal/kea-dhcp6
+[14]: https://hub.docker.com/repository/docker/jonasal/kea-ctrl-agent
+[15]: https://vsupalov.com/docker-latest-tag/
