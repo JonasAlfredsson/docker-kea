@@ -32,10 +32,16 @@ latest of the more specific ones.
 ### Environment Variables
 
 - `KEA_EXECUTABLE`: Should **not** be modified, is used by [`entrypoint.sh`](./entrypoint.sh).
+- `KEA_USER`: Currently does nothing, might be used in the future.
 
 ### Useful Directories
 There are a few directories present inside the images that may be utilized if
 your usecase calls for it.
+
+> The Kea installation creates the user `_kea`/`kea` with uid:gid
+> `101:101`/`100:101` (Debian/Alpine), however, Kea runs as root right now
+> since it needs high privilege to open raw sockets but the folders here
+> have these non-root permissions.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
 - `/kea/leases`: Good location to place the leases memfile if used.

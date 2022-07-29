@@ -11,6 +11,10 @@ ARG KEA_DL_BASE_URL
 ARG KEA_EXECUTABLE
 ENV KEA_EXECUTABLE=$KEA_EXECUTABLE
 
+# In Debian Kea installs the user "kea" with uid 100 and gid 101.
+# Currently this does not make Kea run as this user.
+ENV KEA_USER=kea
+
 # Install some libraries needed during install.
 RUN set -e && apk add --no-cache \
         ca-certificates \
@@ -44,13 +48,22 @@ RUN set -e && apk add --no-cache \
     apk del \
         curl \
     && \
-# Create expected directories.
-    mkdir /entrypoint.d \
+# Make sure some directories mentioned in the documentation are present and
+# owned by the Kea user.
+    chown ${KEA_USER}:${KEA_USER} -R \
+        /var/log/kea \
+        /var/run/kea \
+    && \
+    install -m 0775 -o ${KEA_USER} -g ${KEA_USER} -d /opt/kea && \
+# Create directories we want available for easy configuration management.
+    install -m 0775 -o ${KEA_USER} -g ${KEA_USER} -d \
           /kea \
           /kea/config \
           /kea/leases \
+          /kea/log \
           /kea/socket \
-          /kea/log
+    && \
+    mkdir /entrypoint.d
 
 # Copy the entrypoint script and just set "-V" as the command so the users must
 # define the path to their own config.
