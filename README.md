@@ -156,7 +156,7 @@ More information about this may be found in the Management API section of the
 [9]: https://gist.github.com/mikejoh/04978da4d52447ead7bdd045e878587d
 [10]: https://docs.docker.com/config/daemon/ipv6/
 [11]: https://github.com/robbertkl/docker-ipv6nat
-[12]: https://hub.docker.com/repository/docker/jonasal/kea-dhcp4
-[13]: https://hub.docker.com/repository/docker/jonasal/kea-dhcp6
-[14]: https://hub.docker.com/repository/docker/jonasal/kea-ctrl-agent
+[12]: https://hub.docker.com/r/jonasal/kea-dhcp4/tags
+[13]: https://hub.docker.com/r/jonasal/kea-dhcp6/tags
+[14]: https://hub.docker.com/r/jonasal/kea-ctrl-agent/tags
 [15]: https://vsupalov.com/docker-latest-tag/
