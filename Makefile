@@ -35,6 +35,9 @@ ctrl-agent:
 ctrl-agent-alpine:
 	./build.sh "ctrl-agent" $(KEA_VERSION) "alpine"
 
+.PHONY: release
+release:
+	./build_release.sh $(KEA_VERSION)
 
 # After the dhcp4 target has been executed it is possible to call on this one
 # to start the local build. It has a super simple config which will most likely
