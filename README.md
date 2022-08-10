@@ -5,6 +5,10 @@ container. Separate images for the IPv4 and IPv6 services, as well as an image
 for the Control Agent which exposes a RESTful API that can be used for
 querying/controlling the other services.
 
+Available as both Debian and Alpine images and for multiple architectures. In
+order to facilitate the last part this repo needs to build Kea from source,
+so it might not be 100% identical to the official ISC package.
+
 ---
 
 [Kea][1] is the successor of the old [ISC DHCP][2] server which will reach
@@ -20,6 +24,8 @@ running inside:
 - [`jonasal/kea-dhcp4:<version>`][12]
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
+
+> Just append `-alpine` to the tags above to get the Alpine image.
 
 It is possible to define how strict you want to lock down the version so `2`,
 `2.1` or `2.1.7` all work and the less specific tags will move to point to the
@@ -38,10 +44,10 @@ latest of the more specific ones.
 There are a few directories present inside the images that may be utilized if
 your usecase calls for it.
 
-> The Kea installation creates the user `_kea`/`kea` with uid:gid
-> `101:101`/`100:101` (Debian/Alpine), however, Kea runs as root right now
-> since it needs high privilege to open raw sockets but the folders here
-> have these non-root permissions.
+> This image creates the user `kea` with uid:gid `101:101`/`100:101`
+> (Debian/Alpine) which may be used for non-root execution in the future,
+> however, Kea runs as root right now since it needs high privilege to open
+> raw sockets.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
 - `/kea/leases`: Good location to place the leases memfile if used.
@@ -112,7 +118,7 @@ network the host machine is connected to.
 
 ### The Control Agent
 The DHCP services expose an API that may be used if the `control-socket`
-setting is defined:
+setting is defined in their configuration file:
 
 ```json
 "control-socket": {
