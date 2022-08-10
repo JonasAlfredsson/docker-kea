@@ -5,6 +5,12 @@ KEA_VERSION="2.1.7"
 
 # These are the build functions, they will in turn call upon the Bash script
 # with the correct arguments.
+.PHONY: all
+all: dhcp4 dhcp6 ctrl-agent
+
+.PHONY: all-alpine
+all-alpine: dhcp4-alpine dhcp6-alpine ctrl-agent-alpine
+
 .PHONY: dhcp4
 dhcp4:
 	./build.sh "dhcp4" $(KEA_VERSION)
