@@ -24,4 +24,4 @@ find "/entrypoint.d/" -follow -type f -print | sort -V | while read -r f; do
 done
 
 # Feed all the command parameters directly to the defined executable.
-exec /usr/sbin/kea-${KEA_EXECUTABLE} $@
+exec /usr/local/sbin/kea-${KEA_EXECUTABLE} $@
