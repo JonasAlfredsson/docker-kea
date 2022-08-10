@@ -34,7 +34,7 @@ RUN tar xzpf kea-${KEA_VERSION}.tar.gz
 WORKDIR /kea-${KEA_VERSION}
 
 # Configure with all the settings we want, and then build it.
-# This will take ~5 hours for arm/v7 on an average 4 core desktop.
+# This will take >7 hours for arm/v7 on an average 4 core desktop.
 RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi && \
     make -j$(nproc) && \
     make install
@@ -81,8 +81,8 @@ RUN addgroup -S -g 101 ${KEA_USER} && \
           /kea \
           /kea/config \
           /kea/leases \
-          /kea/log \
-          /kea/socket \
+          /kea/logs \
+          /kea/sockets \
     && \
     mkdir /entrypoint.d
 

@@ -45,8 +45,8 @@ your usecase calls for it.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
 - `/kea/leases`: Good location to place the leases memfile if used.
-- `/kea/log`: Good location to output any logs to.
-- `/kea/socket`: Host mount this in order to share sockets between containers.
+- `/kea/logs`: Good location to output any logs to.
+- `/kea/sockets`: Host mount this in order to share sockets between containers.
 - `/entrypoint.d`: Place any custom scripts you want executed at the start of the container here.
 
 All the folders under `kea/` may be mounted individually or you can just mount

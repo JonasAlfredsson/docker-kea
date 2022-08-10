@@ -16,9 +16,9 @@ services:
     command: -c /kea/config/dhcp4.json
     volumes:
       - ./advanced:/kea/config
-      - sockets:/kea/socket
+      - sockets:/kea/sockets
       - leases:/kea/leases
-      - ./logs:/kea/log
+      - ./logs:/kea/logs
 
   dhcp6:
     image: jonasal/kea-dhcp6:2
@@ -27,9 +27,9 @@ services:
     command: -c /kea/config/dhcp6.json
     volumes:
       - ./advanced:/kea/config
-      - sockets:/kea/socket
+      - sockets:/kea/sockets
       - leases:/kea/leases
-      - ./logs:/kea/log
+      - ./logs:/kea/logs
 
   ctrl-agent:
     image: jonasal/kea-ctrl-agent:2
@@ -39,9 +39,9 @@ services:
     command: -c /kea/config/ctrl-agent.json
     volumes:
       - ./advanced:/kea/config
-      - sockets:/kea/socket
+      - sockets:/kea/sockets
       - leases:/kea/leases
-      - ./logs:/kea/log
+      - ./logs:/kea/logs
 
 volumes:
   sockets:

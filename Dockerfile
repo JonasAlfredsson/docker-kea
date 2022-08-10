@@ -75,8 +75,8 @@ RUN addgroup --system --gid 101 ${KEA_USER} && \
           /kea \
           /kea/config \
           /kea/leases \
-          /kea/log \
-          /kea/socket \
+          /kea/logs \
+          /kea/sockets \
     && \
     mkdir /entrypoint.d
 
