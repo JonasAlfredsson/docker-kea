@@ -8,7 +8,7 @@ querying/controlling the other services.
 Available as both Debian and Alpine images and for multiple architectures. In
 order to facilitate the last part this repo needs to build Kea from source,
 so it might not be 100% identical to the official ISC package and it becomes
-much larger. This is unfortunate but will probably have to remain like this
+a bit larger. This is unfortunate but will probably have to remain like this
 until official packages are built for all architectures, however, since all
 images shares the same base the vast majority of the data will not be duplicated
 if you run all the services at the same time.
@@ -28,6 +28,7 @@ running inside:
 - [`jonasal/kea-dhcp4:<version>`][12]
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
+- (+ [`jonasal/kea-hooks:<version>`][15] - read about this in the [Kea Hooks](#kea-hooks) section)
 
 > Just append `-alpine` to the tags above to get the Alpine image.
 
@@ -152,6 +153,33 @@ More information about this may be found in the Management API section of the
 
 
 
+### Kea Hooks
+Kea has some extended features that are available as "[hooks][17]" which may be
+imported in those cases when they are specifically needed. Some are available
+as free open source while others require a premium subscription in order to get
+them, a table exists [here][18] with more info.
+
+Since these hooks enable advanced functionality, like High Availability and
+BOOTP, most users will never use these. They also take up quite a lot of space
+compared to the rest of the image so therefore they are not included by default.
+However, we do provide an image from where the hooks may be imported so you can
+make your own specialized image, and in the example below we just import the HA
+hooks into the DHCP4 service image.
+
+```Dockerfile
+FROM jonasal/kea-dhcp4:2.1.7
+COPY --from=jonasal/kea-hooks:2.1.7 /hooks/libdhcp_ha.* /usr/local/lib/kea/hooks
+```
+
+You probably also need to run the linker after this, so just to be safe I would
+add one of the following lines afterwards.
+
+```Dockerfile
+RUN ldconfig  # <--- Debian
+or
+RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
+```
+
 
 
 
@@ -170,3 +198,6 @@ More information about this may be found in the Management API section of the
 [13]: https://hub.docker.com/r/jonasal/kea-dhcp6/tags
 [14]: https://hub.docker.com/r/jonasal/kea-ctrl-agent/tags
 [15]: https://vsupalov.com/docker-latest-tag/
+[16]: https://hub.docker.com/r/jonasal/kea-hooks/tags
+[17]: https://kea.readthedocs.io/en/latest/arm/hooks.html
+[18]: https://kea.readthedocs.io/en/latest/arm/hooks.html#id1

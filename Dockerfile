@@ -41,6 +41,10 @@ RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-
     make -j$(nproc) && \
     make install
 
+# There are a couple additional "hook" features located in this folder which
+# will most likely not be needed by the average user, so let's exclude them
+# from the COPY step later.
+RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
 
 #
 # All the services basically need the same stuff so let's make a common layer.
@@ -95,6 +99,9 @@ COPY --from=builder /usr/local/include/kea /usr/local/include/kea
 # As a final step we will need to run ldconfig to make sure that all the Kea
 # libraries that we copied are correctly linked. This is an extra config
 # file which adds a folder to the standard search locations.
+#
+# NOTE: The hooks folder is empty right now, to save some space, but it may be
+#       populated by the user later.
 RUN echo "/usr/local/lib/kea/hooks" > /etc/ld.so.conf.d/kea.conf && \
     ldconfig
 
@@ -127,3 +134,10 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 FROM common AS ctrl-agent-target
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
+
+#
+# The Hooks image.
+#
+FROM base AS hooks-target
+COPY --from=builder /hooks /hooks
+CMD [ "ls", "-ahl", "/hooks" ]
