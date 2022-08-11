@@ -7,7 +7,11 @@ querying/controlling the other services.
 
 Available as both Debian and Alpine images and for multiple architectures. In
 order to facilitate the last part this repo needs to build Kea from source,
-so it might not be 100% identical to the official ISC package.
+so it might not be 100% identical to the official ISC package and it becomes
+much larger. This is unfortunate but will probably have to remain like this
+until official packages are built for all architectures, however, since all
+images shares the same base the vast majority of the data will not be duplicated
+if you run all the services at the same time.
 
 ---
 
