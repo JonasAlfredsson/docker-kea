@@ -32,7 +32,7 @@ WORKDIR /kea-${KEA_VERSION}
 
 # Configure with all the settings we want, and then build it.
 # This will take ~5 hours for arm/v7 on an average 4 core desktop.
-RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi && \
+RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-static=no && \
     make -j$(nproc) && \
     make install
 
