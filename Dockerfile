@@ -1,7 +1,12 @@
 #
-# The builder step.
+# Define the base OS image in a single place.
 #
-FROM debian:bullseye-slim AS builder
+FROM debian:bullseye-slim AS base
+
+#
+# The builder step is where Kea is compiled.
+#
+FROM base AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
@@ -38,9 +43,9 @@ RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-
 
 
 #
-# The common base step.
+# All the services basically need the same stuff so let's make a common layer.
 #
-FROM debian:bullseye-slim AS base
+FROM base AS common
 ARG DEBIAN_FRONTEND=noninteractive
 
 # In Debian the APT package installs the user "_kea", with uid 101 and gid 101,
@@ -103,7 +108,7 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 #
 # The DHCP4 service image.
 #
-FROM base AS dhcp4-target
+FROM common AS dhcp4-target
 ENV KEA_EXECUTABLE=dhcp4
 COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
@@ -111,7 +116,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 #
 # The DHCP6 service image.
 #
-FROM base AS dhcp6-target
+FROM common AS dhcp6-target
 ENV KEA_EXECUTABLE=dhcp6
 COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
@@ -119,6 +124,6 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 #
 # The Kea Control Agent service image.
 #
-FROM base AS ctrl-agent-target
+FROM common AS ctrl-agent-target
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/

@@ -1,7 +1,12 @@
 #
-# The builder step.
+# Define the base OS image in a single place.
 #
-FROM alpine:3.16 AS builder
+FROM alpine:3.16 AS base
+
+#
+# The builder step is where Kea is compiled.
+#
+FROM base AS builder
 
 # Install all packages needed to build Kea.
 RUN set -e && apk add --no-cache \
@@ -41,9 +46,9 @@ RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-
 
 
 #
-# The common base step.
+# All the services basically need the same stuff so let's make a common layer.
 #
-FROM alpine:3.16 AS base
+FROM base AS common
 
 # In Alpine the APK package installs the user "kea", with uid 100 and gid 101,
 # and while I think it is stupid that the numbers are not identical it is the
@@ -112,7 +117,7 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 #
 # The DHCP4 service image.
 #
-FROM base AS dhcp4-target
+FROM common AS dhcp4-target
 ENV KEA_EXECUTABLE=dhcp4
 COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
@@ -120,7 +125,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 #
 # The DHCP6 service image.
 #
-FROM base AS dhcp6-target
+FROM common AS dhcp6-target
 ENV KEA_EXECUTABLE=dhcp6
 COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
@@ -128,6 +133,6 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 #
 # The Kea Control Agent service image.
 #
-FROM base AS ctrl-agent-target
+FROM common AS ctrl-agent-target
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
