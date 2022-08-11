@@ -24,7 +24,7 @@
         // many more.
         "control-socket": {
             "socket-type": "unix",
-            "socket-name": "/kea/socket/dhcp4.socket"
+            "socket-name": "/kea/sockets/dhcp4.socket"
         },
 
         // Specifies credentials to access lease database.
@@ -110,7 +110,7 @@
                         // - syslog (logs to syslog)
                         // - syslog:name (logs to syslog using specified name)
                         // Any other value is considered a name of the file
-                        "output": "/kea/log/dhcp4.log",
+                        "output": "/kea/logs/dhcp4.log",
 
                         // This governs whether the log output is flushed to
                         // disk immediately after every write. Doing this will

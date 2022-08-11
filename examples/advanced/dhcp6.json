@@ -10,7 +10,7 @@
 
         "control-socket": {
             "socket-type": "unix",
-            "socket-name": "/kea/socket/dhcp6.socket"
+            "socket-name": "/kea/sockets/dhcp6.socket"
         },
 
         "lease-database": {
@@ -56,7 +56,7 @@
                         "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
                     },
                     {
-                        "output": "/kea/log/dhcp6.log",
+                        "output": "/kea/logs/dhcp6.log",
                         "flush": false,
                         "maxsize": 1048576,
                         "maxver": 8,
