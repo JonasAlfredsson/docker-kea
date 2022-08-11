@@ -18,7 +18,7 @@ build () {
     # $2: Should be "" for Debian builds, and "-alpine" in case of Alpine.
     # $3: Should be "--push" when we are ready to deploy for real.
     docker buildx build -f "Dockerfile${2}" \
-        --platform linux/amd64 \
+        --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 \
         --build-arg KEA_VERSION=${KEA_VERSION} \
         --target "${1}-target" \
         -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1   )${2}" \
