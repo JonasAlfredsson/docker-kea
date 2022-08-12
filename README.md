@@ -13,6 +13,8 @@ until official packages are built for all architectures, however, since all
 images shares the same base the vast majority of the data will not be duplicated
 if you run all the services at the same time.
 
+> There is also an [Ansible role][19] using this image, if that is of interest.
+
 ---
 
 [Kea][1] is the successor of the old [ISC DHCP][2] server which will reach
@@ -201,3 +203,4 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [16]: https://hub.docker.com/r/jonasal/kea-hooks/tags
 [17]: https://kea.readthedocs.io/en/latest/arm/hooks.html
 [18]: https://kea.readthedocs.io/en/latest/arm/hooks.html#id1
+[19]: https://github.com/JonasAlfredsson/ansible-role-kea_dhcp
