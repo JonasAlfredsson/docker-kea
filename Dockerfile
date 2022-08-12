@@ -73,6 +73,9 @@ RUN addgroup --system --gid 101 ${KEA_USER} && \
         libpq5 \
         libssl1.1 \
     && \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
+    && \
 # Make sure some directories mentioned in the documentation are present and
 # owned by the Kea user.
     install -m 0775 -o ${KEA_USER} -g ${KEA_USER} -d \
