@@ -43,6 +43,16 @@ RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-
 # Having this in its own step makes it easier to experiment.
 RUN make install
 
+# Let's reduce the files needed to be copied later by removing stuff we don't
+# seem to need.
+RUN cd /usr/local/lib/ && \
+    rm -v \
+        libkea-asiodns.* \
+        libkea-d2srv.so* \
+    && rm -v \
+        *.la \
+        kea/hooks/*.la
+
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
 # from the COPY step later.
