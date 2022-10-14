@@ -15,7 +15,7 @@ services:
     network_mode: host
     command: -c /kea/config/dhcp4.json
     volumes:
-      - ./advanced:/kea/config
+      - ./config:/kea/config
       - sockets:/kea/sockets
       - leases:/kea/leases
       - ./logs:/kea/logs
@@ -26,7 +26,7 @@ services:
     network_mode: host
     command: -c /kea/config/dhcp6.json
     volumes:
-      - ./advanced:/kea/config
+      - ./config:/kea/config
       - sockets:/kea/sockets
       - leases:/kea/leases
       - ./logs:/kea/logs
@@ -38,7 +38,7 @@ services:
       - 8000:8000
     command: -c /kea/config/ctrl-agent.json
     volumes:
-      - ./advanced:/kea/config
+      - ./config:/kea/config
       - sockets:/kea/sockets
       - leases:/kea/leases
       - ./logs:/kea/logs
