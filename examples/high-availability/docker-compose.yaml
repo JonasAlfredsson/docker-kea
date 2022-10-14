@@ -1,0 +1,78 @@
+version: '2'
+# This is an advanced setup which starts two instances of the IPv4 Kea DHCP
+# service, along with a Control Agent service for each of them that can receive
+# lease updates from the other peer.
+services:
+  dhcp-1:
+    image: jonasal/kea-dhcp4-ha:2
+    restart: unless-stopped
+    environment:
+      - THIS_SERVER_NAME=dhcp-1
+    command: -c /kea/config/dhcp4.json
+    volumes:
+      - ./entrypoint.d:/entrypoint.d:ro
+      - ./config:/kea/config:ro
+      - sockets-1:/kea/sockets
+      - leases-1:/kea/leases
+    networks:
+      kea-testing:
+        ipv4_address: 10.10.10.2
+
+  ctrl-agent-1:
+    image: jonasal/kea-ctrl-agent:2
+    restart: unless-stopped
+    ports:
+      - 8001:8000
+    command: -c /kea/config/ctrl-agent.json
+    volumes:
+      - ./config:/kea/config:ro
+      - sockets-1:/kea/sockets
+      - leases-1:/kea/leases
+    networks:
+      kea-testing:
+        ipv4_address: 10.10.10.3
+
+  dhcp-2:
+    image: jonasal/kea-dhcp4-ha:2
+    restart: unless-stopped
+    environment:
+      - THIS_SERVER_NAME=dhcp-2
+    command: -c /kea/config/dhcp4.json
+    volumes:
+      - ./entrypoint.d:/entrypoint.d:ro
+      - ./config:/kea/config:ro
+      - sockets-2:/kea/sockets
+      - leases-2:/kea/leases
+    networks:
+      kea-testing:
+        ipv4_address: 10.10.10.4
+
+  ctrl-agent-2:
+    image: jonasal/kea-ctrl-agent:2
+    restart: unless-stopped
+    ports:
+      - 8002:8000
+    command: -c /kea/config/ctrl-agent.json
+    volumes:
+      - ./config:/kea/config:ro
+      - sockets-2:/kea/sockets
+      - leases-2:/kea/leases
+    networks:
+      kea-testing:
+        ipv4_address: 10.10.10.5
+
+volumes:
+  sockets-1:
+  leases-1:
+  sockets-2:
+  leases-2:
+
+# Specify a network we hope will not interfere with anything else on the
+# machine used for testing.
+networks:
+  kea-testing:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.10.10.0/24
+         gateway: 10.10.10.1

@@ -1,0 +1,28 @@
+// This is a basic configuration for the Kea Control Agent.
+{
+    "Control-agent": {
+        "http-host": "0.0.0.0",
+        "http-port": 8000,
+
+        "control-sockets": {
+            "dhcp4": {
+                "socket-type": "unix",
+                "socket-name": "/kea/sockets/dhcp4.socket"
+            }
+        },
+
+        "loggers": [
+            {
+                "name": "kea-ctrl-agent",
+                "output_options": [
+                    {
+                        "output": "stdout",
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    }
+                ],
+                "severity": "INFO",
+                "debuglevel": 0
+            }
+        ]
+    }
+}

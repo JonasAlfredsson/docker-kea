@@ -1,0 +1,142 @@
+// This is a more advanced IPv4 server configuration which intends
+// to show more features available while still being useful as a
+// working example.
+{
+    "Dhcp4": {
+        "interfaces-config": {
+            "interfaces": [ "*" ],
+            "dhcp-socket-type": "raw"
+        },
+
+        "lease-database": {
+            "type": "memfile",
+            "name": "/kea/leases/dhcp4.csv",
+            "lfc-interval": 3600
+        },
+
+        "parked-packet-limit": 128,
+        "valid-lifetime": 6000,
+        "renew-timer": 900,
+        "rebind-timer": 1800,
+
+        // Control socket is required for communication between the Control
+        // Agent and the DHCP server. High Availability requires Control Agent
+        // to be running because lease updates are sent over the RESTful
+        // API between the HA peers.
+        "control-socket": {
+            "socket-type": "unix",
+            "socket-name": "/kea/sockets/dhcp4.socket"
+        },
+
+        // HA requires two hooks libraries to be loaded: libdhcp_lease_cmds.so
+        // and libdhcp_ha.so. The former handles incoming lease updates from the
+        // HA peers and the latter implements high availability feature for Kea.
+        "hooks-libraries": [
+            // The lease_cmds library must be loaded because HA makes use of it
+            // to deliver lease updates to the server as well as synchronize the
+            // lease database after failure.
+            {
+                "library": "/usr/local/lib/kea/hooks/libdhcp_lease_cmds.so",
+                "parameters": { }
+            },
+            {
+                // The HA hooks library should be loaded.
+                "library": "/usr/local/lib/kea/hooks/libdhcp_ha.so",
+                "parameters": {
+                    // High Availability configuration is specified for the HA
+                    // hook library. Each server should have the same HA
+                    // configuration, except for the "this-server-name"
+                    // parameter.
+                    "high-availability": [ {
+                        // This parameter points to this server instance. The
+                        // respective HA peers must have this parameter set to
+                        // their own names.
+                        <?include "/tmp/this-server-name.json"?>
+
+                        // The HA mode is set to hot-standby. In this mode, the
+                        // active server handles all the traffic. The standby
+                        // takes over if the primary becomes unavailable.
+                        "mode": "hot-standby",
+
+                        // Heartbeat is to be sent every 10 seconds if no other
+                        // control commands are transmitted.
+                        "heartbeat-delay": 10000,
+
+                        // Maximum time for partner's response to a heartbeat,
+                        // after which failure detection is started. This is
+                        // specified in milliseconds.
+                        "max-response-delay": 60000,
+
+                        // The following parameters control how the server
+                        // detects the partner's failure. The ACK delay sets
+                        // the threshold for the 'secs' field of the received
+                        // discovers. This is specified in milliseconds.
+                        "max-ack-delay": 5000,
+
+                        // This specifies the number of clients which send
+                        // messages to the partner but appear to not receive
+                        // any response.
+                        "max-unacked-clients": 5,
+
+                        // This specifies the maximum timeout (in milliseconds)
+                        // for the server to complete sync. If you have a large
+                        // deployment (high tens or hundreds of thausands of
+                        // clients), you may need to increase it further.
+                        // The default value is 60000ms (60 seconds).
+                        "sync-timeout": 60000,
+
+                        // In the peers block we define all servers that are
+                        // part of our setup.
+                        "peers": [
+                            {
+                                "name": "dhcp-1",
+
+                                // This specifies the URL of the primary
+                                // instance. The Control Agent must run along
+                                // with the DHCPv4 server instance and the
+                                // "http-host" and "http-port" must be set to
+                                // the corresponding values.
+                                // This must use an IP and not a DNS name.
+                                "url": "http://10.10.10.3:8000/",
+
+                                // This server is primary. The other one must be
+                                // secondary.
+                                "role": "primary"
+                            },
+
+                            // This is the configuration of the HA peer.
+                            {
+                                "name": "dhcp-2",
+                                "url": "http://10.10.10.5:8000/",
+                                "role": "standby"
+                            }
+                        ]
+                    } ]
+                }
+            }
+        ],
+
+        // In the hot-standby mode both peers should have the same subnet
+        // configuration.
+        "subnet4": [
+            {
+                "subnet": "10.10.10.0/24",
+                "pools": [ { "pool": "10.10.10.6 - 10.10.10.100" } ]
+            }
+        ],
+
+        "loggers": [
+            {
+                "name": "kea-dhcp4",
+                "output_options": [
+                    {
+                        "output": "stdout",
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    }
+                ],
+                "severity": "INFO",
+                "debuglevel": 0
+            }
+        ]
+    }
+}
