@@ -70,8 +70,6 @@ spec:
               name: dhcp4-socket
       dnsPolicy: ClusterFirst
       hostNetwork: true
-      nodeSelector:
-        node_id: five
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
