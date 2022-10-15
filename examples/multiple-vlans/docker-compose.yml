@@ -1,0 +1,71 @@
+# This docker-compose file was provided by @Heinicke in the official Discord
+# channel (Shinykey#4602), so all credit goes to them.
+# This is not a functional example since your VLAN environment and interface
+# names will probably be unique to you. Perform an `ip addr show` to see your
+# options, and then just modify this config like this:
+#
+# driver_opts:
+#    parent: <interface name>.<vlan number>
+#
+# In the current setup the parent network interface (enp5s0) has a single
+# connection to the switch which is a trunk with VLAN 10, 20, 30 and 40, all of
+# which will be correctly forwarded to the DHCP service.
+# The upstream switch will then only need to be set up to properly forward
+# the correct VLANs on this trunk.
+services:
+  dhcp4:
+    image: jonasal/kea-dhcp4:2
+    restart: unless-stopped
+    command: -c /kea/config/dhcp4.json
+    volumes:
+      - ./json-config:/kea/config
+      - sockets:/kea/sockets
+      - leases:/kea/leases
+      - ./logs:/kea/logs
+    networks:
+      vlan10:
+        ipv4_address: <ip>
+      vlan20:
+        ipv4_address: <ip>
+      vlan30:
+        ipv4_address: <ip>
+      vlan40:
+        ipv4_address: <ip>
+
+volumes:
+  sockets:
+  leases:
+
+networks:
+  vlan10:
+    driver: ipvlan
+    driver_opts:
+      parent: enp5s0.10
+    ipam:
+      config:
+        - subnet: <subnet>
+          gateway: <gateway>
+  vlan20:
+    driver: ipvlan
+    driver_opts:
+      parent: enp5s0.20
+    ipam:
+      config:
+        - subnet: <subnet>
+          gateway: <gateway>
+  vlan30:
+    driver: ipvlan
+    driver_opts:
+      parent: enp5s0.30
+    ipam:
+      config:
+        - subnet: <subnet>
+          gateway: <gateway>
+  vlan40:
+    driver: ipvlan
+    driver_opts:
+      parent: enp5s0.40
+    ipam:
+      config:
+        - subnet: <subnet>
+          gateway: <gateway>
