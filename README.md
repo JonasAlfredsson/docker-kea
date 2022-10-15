@@ -106,12 +106,20 @@ in the command above. However, I would suggest you read the
 affects these services before trying anything else.
 
 #### Docker Network Mode
-When you want to run your DHCP server for real you will need to set the
-container to use the `host` network, else the requests and responses will not
-leave the Docker network. You *could* [fiddle][9] with a [macvlan][8] setup,
-but I would not bother. Furthermore, [IPv6 support][10] in Docker is a little
-bit [messy][11] right now so with that one your other choices are a bit limited
-either way.
+When you want to run your DHCP server for real you will need to make sure that
+the incoming [DHCP packages][22] can reach your service, and this will not
+happen in case you put the containers on a normal Docker network.
+
+For basic home use I would recommend just setting the container to use the
+[`host`][24] network, since this will be the absolute easiest way to get around
+most issues.  However, you *could* [fiddle][9] with a [macvlan][8] or an
+[ipvlan][23] ([example](./examples/multiple-vlans/docker-compose.yml)) setup in
+case you have more advanced needs, but unless you know you need this I would not
+bother.
+
+Additionally, [IPv6 support][10] in Docker is a little bit [messy][11] right
+now so if you want to deploy that your other choices are a bit limited either
+way.
 
 Setting the `host` network is done by adding
 
@@ -208,3 +216,6 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [19]: https://github.com/JonasAlfredsson/ansible-role-kea_dhcp
 [20]: https://kea.readthedocs.io/en/latest/arm/config.html
 [21]: https://kea.readthedocs.io/en/latest/arm/config.html#json-syntax
+[22]: https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol#DHCP_message_types
+[23]: https://docs.docker.com/network/ipvlan/
+[24]: https://docs.docker.com/network/host/
