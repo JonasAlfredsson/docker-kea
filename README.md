@@ -65,20 +65,21 @@ your usecase calls for it.
 All the folders under `kea/` may be mounted individually or you can just mount
 the entire `kea/` folder, however, then you need to manually create the
 subfolders since Kea is not able to do so itself. See the advanced
-[docker-compose](./examples/docker-compose.yaml) example for inspiration.
+[docker-compose](./examples/advanced/docker-compose.yaml) example for
+inspiration.
 
 ### The DHCP Server
 Each image/service needs its own specific configuration file, so you will need
 to create one for each service you want to run. There is a very simple config
 for the `dhcp4` service in the [simple/](./examples/simple/dhcp4.json) folder,
 with more comprehensive ones for all services in the
-[advanced/](./examples/advanced/) folder. You may then also look at the
-[official repository][6] for some [more settings][7] or go to the
-[documentation][4] for the latest info.
+[advanced/](./examples/advanced/) folder. You may also look in the [examples][6]
+folder on the official repo to find stuff like [all available keys][7] for the
+DHCP4 config, or go to the [documentation][20] for the latest info.
 
-> The syntax used is extended JSON with another couple of addons which allows
-> comments and file inclusion. This is very handy and makes it much easier to
-> write well structured configuration files.
+> The syntax used is [extended JSON with another couple of addons][21] which
+> allows comments and file inclusion. This is very handy and makes it much
+> easier to write well structured configuration files.
 
 When starting the service you need to make sure that you point it to the correct
 configuration file. In the simple example we would provide the following command
@@ -118,7 +119,8 @@ Setting the `host` network is done by adding
 --network host
 ```
 
-to the command above, or look at the [docker-compose](./examples/docker-compose.yaml)
+to the command above, or look at the
+[docker-compose](./examples/advanced/docker-compose.yaml)
 file for how it is done there. Then you should be able to serve leases on the
 network the host machine is connected to.
 
@@ -140,7 +142,7 @@ provides a RESTful API that may be interfaced with instead. You just need
 to make sure this service can communicate with the `control-socket` of the DHCP
 service, and an example of how to do this can be found in the
 [advanced/](./examples/advanced/) folder along with the
-[docker-compose.yaml](./examples/docker-compose.yaml) file.
+[docker-compose.yaml](./examples/advanced/docker-compose.yaml) file.
 
 When that is all up and running you should be able to make queries like this:
 
@@ -170,7 +172,7 @@ hooks into the DHCP4 service image.
 
 ```Dockerfile
 FROM jonasal/kea-dhcp4:2.1.7
-COPY --from=jonasal/kea-hooks:2.1.7 /hooks/libdhcp_ha.* /usr/local/lib/kea/hooks
+COPY --from=jonasal/kea-hooks:2.1.7 /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks
 ```
 
 You probably also need to run the linker after this, so just to be safe I would
@@ -190,8 +192,8 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [3]: https://kb.isc.org/docs/isc-kea-packages
 [4]: https://kea.readthedocs.io
 [5]: https://academy.apnic.net/wp-content/uploads/2020/03/kea-apnic-webinar.pdf
-[6]: https://github.com/isc-projects/kea/tree/master/src/bin/keactrl
-[7]: https://fossies.org/linux/kea/doc/examples/kea4/all-keys.json
+[6]: https://github.com/isc-projects/kea/tree/master/doc/examples
+[7]: https://github.com/isc-projects/kea/blob/master/doc/examples/kea4/all-keys.json
 [8]: https://docs.docker.com/network/macvlan/
 [9]: https://gist.github.com/mikejoh/04978da4d52447ead7bdd045e878587d
 [10]: https://docs.docker.com/config/daemon/ipv6/
@@ -204,3 +206,5 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [17]: https://kea.readthedocs.io/en/latest/arm/hooks.html
 [18]: https://kea.readthedocs.io/en/latest/arm/hooks.html#id1
 [19]: https://github.com/JonasAlfredsson/ansible-role-kea_dhcp
+[20]: https://kea.readthedocs.io/en/latest/arm/config.html
+[21]: https://kea.readthedocs.io/en/latest/arm/config.html#json-syntax
