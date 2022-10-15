@@ -70,8 +70,6 @@ spec:
               name: dhcp4-socket
       dnsPolicy: ClusterFirst
       hostNetwork: true
-      imagePullSecrets:
-        - name: gitlab-auth
       nodeSelector:
         node_id: five
       restartPolicy: Always
