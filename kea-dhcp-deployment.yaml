@@ -1,3 +1,8 @@
+# This k8s deployment configuration was intially created by @vavallee and it
+# works for them, however, this is unconfirmed by me so please see this file
+# as inspiration rather than a straight copy paste.
+# When I have a local Kubernetes cluster to test against this will probably be
+# updated.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
