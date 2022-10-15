@@ -11,68 +11,67 @@ spec:
     matchLabels:
       app: dhcp-kea
   strategy:
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: dhcp-kea
     spec:
       containers:
-      - args:
-        - -c
-        - /kea/config/ctrl-agent.json
-        command:
-        - /usr/local/sbin/kea-ctrl-agent
-        image: jonasal/kea-ctrl-agent:2.2.0-alpine
-        imagePullPolicy: Always
-        name: dhcp-control
-        ports:
-        - containerPort: 8000
-          hostPort: 8000
-          name: ctrl-port
-          protocol: TCP
-        resources: {}
-        securityContext:
-          privileged: true
-          runAsUser: 0
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /kea/config/ctrl-agent.json
-          name: kea-ctrl
-          subPath: ctrl-agent.json
-        - mountPath: /kea/sockets
-          name: dhcp4-socket
-      - args:
-        - -c
-        - /kea/config/dhcp4.json
-        command:
-        - /usr/local/sbin/kea-dhcp4
-        image: jonasal/kea-dhcp4:2.2.0-alpine
-        imagePullPolicy: Always
-        name: dhcp-kea
-        ports:
-        - containerPort: 67
-          hostPort: 67
-          name: dhcp-port
-          protocol: UDP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /kea/config/dhcp4.json
-          name: kea-dhcp4
-          subPath: dhcp4.json
-        - mountPath: /kea/sockets
-          name: dhcp4-socket
+        - args:
+            - -c
+            - /kea/config/ctrl-agent.json
+          command:
+            - /usr/local/sbin/kea-ctrl-agent
+          image: jonasal/kea-ctrl-agent:2.2.0-alpine
+          imagePullPolicy: Always
+          name: dhcp-control
+          ports:
+            - containerPort: 8000
+              hostPort: 8000
+              name: ctrl-port
+              protocol: TCP
+          resources: {}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /kea/config/ctrl-agent.json
+              name: kea-ctrl
+              subPath: ctrl-agent.json
+            - mountPath: /kea/sockets
+              name: dhcp4-socket
+        - args:
+            - -c
+            - /kea/config/dhcp4.json
+          command:
+            - /usr/local/sbin/kea-dhcp4
+          image: jonasal/kea-dhcp4:2.2.0-alpine
+          imagePullPolicy: Always
+          name: dhcp-kea
+          ports:
+            - containerPort: 67
+              hostPort: 67
+              name: dhcp-port
+              protocol: UDP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /kea/config/dhcp4.json
+              name: kea-dhcp4
+              subPath: dhcp4.json
+            - mountPath: /kea/sockets
+              name: dhcp4-socket
       dnsPolicy: ClusterFirst
       hostNetwork: true
       imagePullSecrets:
-      - name: gitlab-auth
+        - name: gitlab-auth
       nodeSelector:
         node_id: five
       restartPolicy: Always
@@ -80,13 +79,13 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-      - configMap:
-          defaultMode: 420
+        - configMap:
+            defaultMode: 420
+            name: kea-dhcp4
           name: kea-dhcp4
-        name: kea-dhcp4
-      - configMap:
-          defaultMode: 420
+        - configMap:
+            defaultMode: 420
+            name: kea-ctrl
           name: kea-ctrl
-        name: kea-ctrl
-      - emptyDir: {}
-        name: dhcp4-socket
+        - emptyDir: {}
+          name: dhcp4-socket
