@@ -51,6 +51,14 @@ ctrl-agent:
 ctrl-agent-alpine:
 	./build.sh "ctrl-agent" $(KEA_VERSION) "alpine"
 
+.PHONY: dhcp-ddns
+dhcp-ddns:
+	./build.sh "dhcp-ddns" $(KEA_VERSION)
+
+.PHONY: dhcp-ddns-alpine
+dhcp-ddns-alpine:
+	./build.sh "dhcp-ddns" $(KEA_VERSION) "alpine"
+
 .PHONY: release
 release:
 	./build_release.sh $(KEA_VERSION)
