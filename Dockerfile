@@ -47,9 +47,6 @@ RUN make install
 # seem to need.
 RUN cd /usr/local/lib/ && \
     rm -v \
-        libkea-asiodns.* \
-        libkea-d2srv.so* \
-    && rm -v \
         *.la \
         kea/hooks/*.la
 
@@ -163,6 +160,13 @@ COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local
 FROM common AS ctrl-agent-target
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
+
+#
+# The Kea DHCP DDNS service image.
+#
+FROM common AS dhcp-ddns-target
+ENV KEA_EXECUTABLE=dhcp-ddns
+COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 
 
 #
