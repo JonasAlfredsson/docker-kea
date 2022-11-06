@@ -23,20 +23,25 @@ its end of life sometime during 2022, so it is recommended to start
 with separate [packages][3] for the different services along with a lot of
 [documentation][4].
 
-To keep the same modularity in the Docker case this repo produces three
+To keep the same modularity in the Docker case this repo produces four
 different images which are tagged with the same version as the Kea service
 running inside:
 
 - [`jonasal/kea-dhcp4:<version>`][12]
 - [`jonasal/kea-dhcp6:<version>`][13]
+- [`jonasal/kea-dhcp-ddns:<version>`][25]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
 - (+ [`jonasal/kea-hooks:<version>`][15] - read about this in the [Kea Hooks](#kea-hooks) section)
 
 > Just append `-alpine` to the tags above to get the Alpine image.
 
 It is possible to define how strict you want to lock down the version so `2`,
-`2.1` or `2.1.7` all work and the less specific tags will move to point to the
-latest of the more specific ones.
+`2.2` or `2.2.0` all work and the less specific tags will move to point to the
+latest of the more specific ones. One thing to be aware of is that **even**
+minor versions (`2.2`) are stable builds while **odd** (`2.3`) are development
+builds, therefore the major tagging of all the images built here will only track
+the stable releases. What this means is that `2 -> 2.2.0` even though `2.3.1` is
+available.
 
 > There is no [`:latest`][15] tag since Kea updates may break things.
 
@@ -178,9 +183,12 @@ However, we do provide an image from where the hooks may be imported so you can
 make your own specialized image, and in the example below we just import the HA
 hooks into the DHCP4 service image.
 
+> There actually exists pre-built containers with the HA hooks built in if that
+> is the only thing you need: [kea-dhcp4-ha][26] & [kea-dhcp6-ha][27].
+
 ```Dockerfile
-FROM jonasal/kea-dhcp4:2.1.7
-COPY --from=jonasal/kea-hooks:2.1.7 /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks
+FROM jonasal/kea-dhcp4:2.2.0
+COPY --from=jonasal/kea-hooks:2.2.0 /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks
 ```
 
 You probably also need to run the linker after this, so just to be safe I would
@@ -191,6 +199,8 @@ RUN ldconfig  # <--- Debian
 or
 RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 ```
+
+
 
 
 
@@ -219,3 +229,6 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [22]: https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol#DHCP_message_types
 [23]: https://docs.docker.com/network/ipvlan/
 [24]: https://docs.docker.com/network/host/
+[25]: https://hub.docker.com/r/jonasal/kea-dhcp-ddns/tags
+[26]: https://hub.docker.com/r/jonasal/kea-dhcp4-ha/tags
+[27]: https://hub.docker.com/r/jonasal/kea-dhcp6-ha/tags
