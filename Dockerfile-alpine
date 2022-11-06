@@ -48,13 +48,9 @@ RUN make install
 
 # Let's reduce the files needed to be copied later by removing stuff we don't
 # seem to need.
-RUN cd /usr/local/lib/ && \
-    rm -v \
-        libkea-asiodns.* \
-        libkea-d2srv.so* \
-    && rm -v \
-        *.la \
-        kea/hooks/*.la
+RUN ls -ahl /usr/local/ && cd /usr/local/lib/ && \
+    rm -v *.la && \
+    rm -v kea/hooks/*.la
 
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
@@ -161,6 +157,14 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 #
 FROM dhcp6-target AS dhcp6-ha-target
 COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks/
+
+
+#
+# The Kea DHCP DDNS service image.
+#
+FROM common AS dhcp-ddns-target
+ENV KEA_EXECUTABLE=dhcp-ddns
+COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 
 
 #

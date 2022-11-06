@@ -46,9 +46,8 @@ RUN make install
 # Let's reduce the files needed to be copied later by removing stuff we don't
 # seem to need.
 RUN cd /usr/local/lib/ && \
-    rm -v \
-        *.la \
-        kea/hooks/*.la
+    rm -v *.la && \
+    rm -v kea/hooks/*.la
 
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
@@ -160,6 +159,7 @@ COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local
 FROM common AS ctrl-agent-target
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
+
 
 #
 # The Kea DHCP DDNS service image.
