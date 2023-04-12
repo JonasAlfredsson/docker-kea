@@ -26,10 +26,11 @@ RUN apt-get update && apt-get install -y \
 
 ARG KEA_VERSION
 # Download and unpack the correct tarball (also verify the signature).
-RUN curl -LOR "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.gz{,.sha512.asc}" && \
+RUN curl -LOR "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.gz{,.asc}" && \
     install -m 0700 -o root -g root -d /root/.gnupg && \
+    curl -L "https://www.isc.org/docs/isc-keyblock.asc" | gpg2 --import && \
     gpg2 --no-options --verbose --keyid-format 0xlong --keyserver-options auto-key-retrieve=true \
-        --verify kea-${KEA_VERSION}.tar.gz.sha512.asc kea-${KEA_VERSION}.tar.gz && \
+        --verify kea-${KEA_VERSION}.tar.gz.asc kea-${KEA_VERSION}.tar.gz && \
     tar xzpf kea-${KEA_VERSION}.tar.gz
 
 # Set the extracted location as our new workdir.
