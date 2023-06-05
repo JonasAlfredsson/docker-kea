@@ -50,6 +50,9 @@ RUN cd /usr/local/lib/ && \
     rm -v *.la && \
     rm -v kea/hooks/*.la
 
+# Strip debug symbols to reduce file size of binaries
+RUN find /usr/local/sbin/ /usr/local/lib/ -type f -exec strip --strip-unneeded {} \;
+
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
 # from the COPY step later.
