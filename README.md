@@ -7,11 +7,9 @@ querying/controlling the other services.
 
 Available as both Debian and Alpine images and for multiple architectures. In
 order to facilitate the last part this repo needs to build Kea from source,
-so it might not be 100% identical to the official ISC package and it becomes
-a bit larger. This is unfortunate but will probably have to remain like this
-until official packages are built for all architectures, however, since all
-images shares the same base the vast majority of the data will not be duplicated
-if you run all the services at the same time.
+so it might not be 100% identical to the official ISC package, which is
+unfortunate but it will probably have to remain like this until official
+packages are built for all architectures.
 
 > There is also an [Ansible role][19] using this image, if that is of interest.
 
@@ -177,8 +175,7 @@ as free open source while others require a premium subscription in order to get
 them, a table exists [here][18] with more info.
 
 Since these hooks enable advanced functionality, like High Availability and
-BOOTP, most users will never use these. They also take up quite a lot of space
-compared to the rest of the image so therefore they are not included by default.
+BOOTP, most users will never use these so they are not included by default.
 However, we do provide an image from where the hooks may be imported so you can
 make your own specialized image, and in the example below we just import the HA
 hooks into the DHCP4 service image.
