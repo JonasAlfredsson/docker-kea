@@ -7,10 +7,11 @@ log() {
 }
 log "Starting Kea ${KEA_EXECUTABLE} container"
 
-# Make sure there is no leftover from previous process if it was abruptly aborted (power shutdown for instance).
-# Kea does not restart if the pid file from the previous process still exists. This ensures that it can restart
-# without any issue.
-rm -f /usr/local/var/run/kea/*.kea-"${KEA_EXECUTABLE}".pid
+# Make sure there is no leftover from previous process if it was abruptly
+# aborted (power shutdown for instance). Kea does not start if the pid file
+# from the previous process still exists.
+# https://github.com/JonasAlfredsson/docker-kea/pull/13#discussion_r1309289293
+rm -fv "${KEA_PIDFILE_DIR:-/usr/local/var/run/kea}"/*.kea-"${KEA_EXECUTABLE}".pid
 
 # Execute any potential shell scripts in the entrypoint.d/ folder.
 find "/entrypoint.d/" -follow -type f -print | sort -V | while read -r f; do
