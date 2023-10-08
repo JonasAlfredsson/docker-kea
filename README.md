@@ -15,11 +15,11 @@ packages are built for all architectures.
 
 ---
 
-[Kea][1] is the successor of the old [ISC DHCP][2] server which will reach
-its end of life sometime during 2022, so it is recommended to start
-[migrating][5] now. It is built with the modern web in mind, and is more modular
-with separate [packages][3] for the different services along with a lot of
-[documentation][4].
+[Kea][1] is the successor of the old [ISC DHCP][2] server which reached its end
+of life [late 2022][28], so it is recommended to [migrate][29] to Kea now if you
+are still using the old service. Kea is built with the modern web in mind
+([intro presentation][5]), and is more modular with separate [packages][3] for
+the different services along with a lot of [documentation][4].
 
 To keep the same modularity in the Docker case this repo produces four
 different images which are tagged with the same version as the Kea service
@@ -143,12 +143,12 @@ setting is defined in their configuration file:
 ```json
 "control-socket": {
     "socket-type": "unix",
-    "socket-name": "/kea/socket/dhcp4.socket"
+    "socket-name": "/kea/sockets/dhcp4.socket"
 },
 ```
 
 A unix socket is the only method available, and while you can push commands
-directly through this with the help of `socat` the `ctrl-agent` service
+directly through this with the help of [`socat`][30] the `ctrl-agent` service
 provides a RESTful API that may be interfaced with instead. You just need
 to make sure this service can communicate with the `control-socket` of the DHCP
 service, and an example of how to do this can be found in the
@@ -229,3 +229,6 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [25]: https://hub.docker.com/r/jonasal/kea-dhcp-ddns/tags
 [26]: https://hub.docker.com/r/jonasal/kea-dhcp4-ha/tags
 [27]: https://hub.docker.com/r/jonasal/kea-dhcp6-ha/tags
+[28]: https://www.isc.org/blogs/isc-dhcp-eol/
+[29]: https://www.isc.org/dhcp_migration/
+[30]: https://reports.kea.isc.org/dev_guide/d2/d96/ctrlSocket.html#ctrlSocketClient
