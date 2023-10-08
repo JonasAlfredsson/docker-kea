@@ -21,5 +21,6 @@ set -e
 docker build -f Dockerfile"$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     -t "kea-${KEA_EXECUTABLE}:local$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     --build-arg KEA_VERSION=${KEA_VERSION} \
-    --target "${KEA_EXECUTABLE}-target" \
+    --target "${KEA_EXECUTABLE}" \
+    --pull \
     ./
