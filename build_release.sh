@@ -20,13 +20,20 @@ build () {
     docker buildx build -f "Dockerfile${2}" \
         --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 \
         --build-arg KEA_VERSION=${KEA_VERSION} \
-        --target "${1}-target" \
+        --target "${1}" \
         $(if [ $(( $(echo ${KEA_VERSION} | cut -d. -f 2 )%2 )) -eq 0 ]; then echo "-t jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1 )${2}"; fi) \
         -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-2 )${2}" \
         -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-3 )${2}" \
         ${3} \
         ./
 }
+
+# First of all we make sure that we have the latest base image pulled.
+# We do this here so we don't accidentally pull a new base sometime during the
+# build (which takes a very long time so it is not unlikely it will happen).
+for os in "debian" "alpine"; do
+    build "base" "$(if [ "${os}" != "debian" ]; then echo "-${os}"; fi)" "--pull"
+done
 
 # This loop will first build all the services for all operating systems, and
 # when everything has been successfully built we go though everything again
@@ -36,7 +43,7 @@ build () {
 for should_push in false true; do
     for os in "debian" "alpine"; do
         for target in "dhcp4" "dhcp4-ha" "dhcp6" "dhcp6-ha" "dhcp-ddns" "ctrl-agent" "hooks"; do
-            build "${target}" "$(if [ "${os}" != "debian" ]; then echo "-${os}"; fi)" "$(if [ "${should_push}" == "true" ]; then echo "--push"; else echo "--pull"; fi)"
+            build "${target}" "$(if [ "${os}" != "debian" ]; then echo "-${os}"; fi)" "$(if [ "${should_push}" == "true" ]; then echo "--pushy"; fi)"
         done
     done
 done

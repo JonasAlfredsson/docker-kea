@@ -133,35 +133,35 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 #
 # The DHCP4 service image.
 #
-FROM common AS dhcp4-target
+FROM common AS dhcp4
 ENV KEA_EXECUTABLE=dhcp4
 COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
 # The DHCP4 service image with high-availability hooks included.
 #
-FROM dhcp4-target AS dhcp4-ha-target
+FROM dhcp4 AS dhcp4-ha
 COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks/
 
 
 #
 # The DHCP6 service image.
 #
-FROM common AS dhcp6-target
+FROM common AS dhcp6
 ENV KEA_EXECUTABLE=dhcp6
 COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
 # The DHCP6 service image with high-availability hooks included.
 #
-FROM dhcp6-target AS dhcp6-ha-target
+FROM dhcp6 AS dhcp6-ha
 COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks/
 
 
 #
 # The Kea Control Agent service image.
 #
-FROM common AS ctrl-agent-target
+FROM common AS ctrl-agent
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
 
@@ -169,7 +169,7 @@ COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
 #
 # The Kea DHCP DDNS service image.
 #
-FROM common AS dhcp-ddns-target
+FROM common AS dhcp-ddns
 ENV KEA_EXECUTABLE=dhcp-ddns
 COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 
@@ -177,6 +177,6 @@ COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 #
 # The Hooks image.
 #
-FROM base AS hooks-target
+FROM base AS hooks
 COPY --from=builder /hooks /hooks
 CMD [ "ls", "-ahl", "/hooks" ]
