@@ -7,8 +7,8 @@ on:
       - "main"
       - "master"
     paths:
-      - "src/Dockerfile*"
-      - "src/Makefile"
+      - "Dockerfile*"
+      - "Makefile"
 
 jobs:
   docker_buildx_debian:
