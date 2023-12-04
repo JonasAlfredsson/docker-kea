@@ -1,7 +1,7 @@
 # The Makefile will be the "source of truth" when it comes to which version of
 # Kea we are to build. Having it in a single place will make life easier for us
 # in the future.
-KEA_VERSION="2.4.1"
+KEA_VERSION="2.5.4"
 
 # These are the build functions, they will in turn call upon the Bash script
 # with the correct arguments.
