@@ -24,24 +24,25 @@
         // If there is no pool then only static leases (reservations) may be
         // handed out.
         "subnet4": [{
-           "subnet": "172.17.0.0/16",  // Required
-           "pools": [ { "pool": "172.17.0.2-172.17.0.10" } ]
+            "id": 1, // Required, must be unique between subnets.
+            "subnet": "172.17.0.0/16",  // Required
+            "pools": [ { "pool": "172.17.0.2-172.17.0.10" } ]
         }],
 
         // No static leases (reservations) are defined here.
         "reservations": [],
 
-       // Define a logger which outputs to stdout.
-       "loggers": [
-           {
-               "name": "kea-dhcp4",
-               "output_options": [
-                   {
-                       "output": "stdout",
-                       "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
-                   }
+        // Define a logger which outputs to stdout.
+        "loggers": [
+            {
+                "name": "kea-dhcp4",
+                "output_options": [
+                    {
+                        "output": "stdout",
+                        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+                    }
                 ],
-               "severity": "INFO"
+                "severity": "INFO"
             }
         ]
     }

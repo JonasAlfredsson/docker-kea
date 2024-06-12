@@ -3,6 +3,7 @@
 // only difference being that they are using IPv6 addresses instead.
 "subnet6": [
     {
+        "id": 1,
         "subnet": "2001:db8:1::/64",
         "pools": [ { "pool": "2001:db8:1::/80" } ],
 

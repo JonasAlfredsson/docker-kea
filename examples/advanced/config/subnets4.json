@@ -1,6 +1,9 @@
 // Below is an example of a simple IPv4 subnet declaration.
 "subnet4": [
     {
+        // Subnet unique identifier.
+        "id": 1,
+
         // This defines the whole subnet. Kea will use this information to
         // determine where the clients are connected. This is the whole
         // subnet in your network. This is mandatory parameter for each
