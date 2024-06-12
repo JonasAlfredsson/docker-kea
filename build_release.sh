@@ -42,7 +42,7 @@ done
 # the cache should be present so the second iteration should be really quick.
 for should_push in false true; do
     for os in "debian" "alpine"; do
-        for target in "dhcp4" "dhcp4-ha" "dhcp6" "dhcp6-ha" "dhcp-ddns" "ctrl-agent" "hooks"; do
+        for target in "dhcp4-slim" "dhcp4" "dhcp6-slim" "dhcp6" "dhcp-ddns" "ctrl-agent" "hooks"; do
             build "${target}" "$(if [ "${os}" != "debian" ]; then echo "-${os}"; fi)" "$(if [ "${should_push}" == "true" ]; then echo "--push"; fi)"
         done
     done

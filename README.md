@@ -29,7 +29,7 @@ running inside:
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-dhcp-ddns:<version>`][25]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
-- (+ [`jonasal/kea-hooks:<version>`][15] - read about this in the [Kea Hooks](#kea-hooks) section)
+- (+ [`jonasal/kea-hooks:<version>`][16] - read about this in the [Kea Hooks](#kea-hooks) section)
 
 > Just append `-alpine` to the tags above to get the Alpine image.
 
@@ -174,22 +174,22 @@ imported in those cases when they are specifically needed. Some are available
 as free open source while others require a premium subscription in order to get
 them, a table exists [here][18] with more info.
 
-Since these hooks enable advanced functionality, like High Availability and
-BOOTP, most users will never use these so they are not included by default.
-However, we do provide an image from where the hooks may be imported so you can
-make your own specialized image, and in the example below we just import the HA
-hooks into the DHCP4 service image.
+These hooks enable advanced functionality, like High Availability and BOOTP,
+which means most people will probably never use these, and which is why we
+provide `dhcp4-slim` and `dhcp6-slim` images which don't have any hook libraries
+included at all.
 
-> There actually exists pre-built containers with the HA hooks built in if that
-> is the only thing you need: [kea-dhcp4-ha][26] & [kea-dhcp6-ha][27].
+However, if you want to make your own specialized image we do provide an
+additional image from where individual hooks may be imported. In the example
+below we just import the HA hooks into the `dhcp4-slim` service image.
 
 ```Dockerfile
-FROM jonasal/kea-dhcp4:2.2.0
+FROM jonasal/kea-dhcp4-slim:2.2.0
 COPY --from=jonasal/kea-hooks:2.2.0 /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks
 ```
 
-You probably also need to run the linker after this, so just to be safe I would
-add one of the following lines afterwards.
+It could also be necessary to run the linker after this, so just to be safe I
+would add one of the following lines afterwards.
 
 ```Dockerfile
 RUN ldconfig  # <--- Debian
@@ -227,8 +227,6 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [23]: https://docs.docker.com/network/ipvlan/
 [24]: https://docs.docker.com/network/host/
 [25]: https://hub.docker.com/r/jonasal/kea-dhcp-ddns/tags
-[26]: https://hub.docker.com/r/jonasal/kea-dhcp4-ha/tags
-[27]: https://hub.docker.com/r/jonasal/kea-dhcp6-ha/tags
 [28]: https://www.isc.org/blogs/isc-dhcp-eol/
 [29]: https://www.isc.org/dhcp_migration/
 [30]: https://reports.kea.isc.org/dev_guide/d2/d96/ctrlSocket.html#ctrlSocketClient

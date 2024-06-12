@@ -58,7 +58,7 @@ RUN find /usr/local/sbin/ /usr/local/lib/ -type f -exec strip --strip-unneeded {
 
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
-# from the COPY step later.
+# from the first COPY step later so we can make a "slim" image.
 RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
 
 
@@ -136,31 +136,50 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 
 
 #
-# The DHCP4 service image.
+# The DHCP4 service image without any hook libraries.
 #
-FROM common AS dhcp4
+FROM common AS dhcp4-slim
 ENV KEA_EXECUTABLE=dhcp4
 COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
-# The DHCP4 service image with high-availability hooks included.
+# The DHCP4 service image with all relevant hooks included.
 #
-FROM dhcp4 AS dhcp4-ha
-COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks/
+# The libdhcp_mysql_cb.so and libdhcp_pgsql_cb.so libraries depend on the paid
+# libdhcp_cb_cmds.so library, so they are excluded.
+FROM dhcp4-slim AS dhcp4
+COPY --from=builder \
+    /hooks/libdhcp_bootp.so \
+    /hooks/libdhcp_flex_option.so \
+    /hooks/libdhcp_ha.so \
+    /hooks/libdhcp_lease_cmds.so \
+    /hooks/libdhcp_perfmon.so \
+    /hooks/libdhcp_run_script.so \
+    /hooks/libdhcp_stat_cmds.so \
+    /usr/local/lib/kea/hooks/
 
 
 #
-# The DHCP6 service image.
+# The DHCP6 service image without any hook libraries.
 #
-FROM common AS dhcp6
+FROM common AS dhcp6-slim
 ENV KEA_EXECUTABLE=dhcp6
 COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
-# The DHCP6 service image with high-availability hooks included.
+# The DHCP6 service image with all relevant hooks included.
 #
-FROM dhcp6 AS dhcp6-ha
-COPY --from=builder /hooks/libdhcp_ha.so /hooks/libdhcp_lease_cmds.so /usr/local/lib/kea/hooks/
+# The libdhcp_mysql_cb.so and libdhcp_pgsql_cb.so libraries depend on the paid
+# libdhcp_cb_cmds.so library, so they are excluded.
+FROM dhcp6-slim AS dhcp6
+COPY --from=builder \
+    /hooks/libdhcp_flex_option.so \
+    /hooks/libdhcp_ha.so \
+    /hooks/libdhcp_lease_cmds.so \
+    /hooks/libdhcp_perfmon.so \
+    /hooks/libdhcp_run_script.so \
+    /hooks/libdhcp_stat_cmds.so \
+    /usr/local/lib/kea/hooks/
 
 
 #

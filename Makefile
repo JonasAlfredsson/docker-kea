@@ -6,10 +6,18 @@ KEA_VERSION="2.6.0"
 # These are the build functions, they will in turn call upon the Bash script
 # with the correct arguments.
 .PHONY: all
-all: dhcp4 dhcp4-ha dhcp6 dhcp6-ha dhcp-ddns ctrl-agent hooks
+all: dhcp4-slim dhcp4 dhcp6-slim dhcp6 dhcp-ddns ctrl-agent hooks
 
 .PHONY: all-alpine
-all-alpine: dhcp4-alpine dhcp4-ha-alpine dhcp6-alpine dhcp6-ha-alpine dhcp-ddns-alpine ctrl-agent-alpine hooks-alpine
+all-alpine: dhcp4-slim-alpine dhcp4-alpine dhcp6-slim-alpine dhcp6-alpine dhcp-ddns-alpine ctrl-agent-alpine hooks-alpine
+
+.PHONY: dhcp4-slim
+dhcp4-slim:
+	./build.sh "dhcp4-slim" $(KEA_VERSION)
+
+.PHONY: dhcp4-slim-alpine
+dhcp4-slim-alpine:
+	./build.sh "dhcp4-slim" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp4
 dhcp4:
@@ -19,13 +27,13 @@ dhcp4:
 dhcp4-alpine:
 	./build.sh "dhcp4" $(KEA_VERSION) "alpine"
 
-.PHONY: dhcp4-ha
-dhcp4-ha:
-	./build.sh "dhcp4-ha" $(KEA_VERSION)
+.PHONY: dhcp6-slim
+dhcp6-slim:
+	./build.sh "dhcp6-slim" $(KEA_VERSION)
 
-.PHONY: dhcp4-ha-alpine
-dhcp4-ha-alpine:
-	./build.sh "dhcp4-ha" $(KEA_VERSION) "alpine"
+.PHONY: dhcp6-slim-alpine
+dhcp6-slim-alpine:
+	./build.sh "dhcp6-slim" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp6
 dhcp6:
@@ -34,14 +42,6 @@ dhcp6:
 .PHONY: dhcp6-alpine
 dhcp6-alpine:
 	./build.sh "dhcp6" $(KEA_VERSION) "alpine"
-
-.PHONY: dhcp6-ha
-dhcp6-ha:
-	./build.sh "dhcp6-ha" $(KEA_VERSION)
-
-.PHONY: dhcp6-ha-alpine
-dhcp6-ha-alpine:
-	./build.sh "dhcp6-ha" $(KEA_VERSION) "alpine"
 
 .PHONY: ctrl-agent
 ctrl-agent:
