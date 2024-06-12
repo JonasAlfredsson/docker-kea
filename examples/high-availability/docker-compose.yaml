@@ -4,7 +4,7 @@ version: '2'
 # lease updates from the other peer.
 services:
   dhcp-1:
-    image: jonasal/kea-dhcp4-ha:2
+    image: jonasal/kea-dhcp4:2
     restart: unless-stopped
     environment:
       - THIS_SERVER_NAME=dhcp-1
@@ -33,7 +33,7 @@ services:
         ipv4_address: 10.10.10.3
 
   dhcp-2:
-    image: jonasal/kea-dhcp4-ha:2
+    image: jonasal/kea-dhcp4:2
     restart: unless-stopped
     environment:
       - THIS_SERVER_NAME=dhcp-2
