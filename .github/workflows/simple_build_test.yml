@@ -24,6 +24,9 @@ jobs:
       - name: Build the amd64 version of the Debian image
         run: make all
 
+      - name: Check for new/changed hook libraries
+        run: docker run kea-hooks:local ls -1 /hooks | diff .github/kea_hook_libraries.list -
+
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
@@ -37,3 +40,6 @@ jobs:
 
       - name: Build the amd64 version of the Alpine image
         run: make all-alpine
+
+      - name: Check for new/changed hook libraries
+        run: docker run kea-hooks:local-alpine ls -1 /hooks | diff .github/kea_hook_libraries.list -
