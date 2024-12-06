@@ -1,7 +1,7 @@
 #
 # Define the base OS image in a single place.
 #
-FROM alpine:3.20 AS base
+FROM alpine:3.21 AS base
 
 #
 # The builder step is where Kea is compiled.
