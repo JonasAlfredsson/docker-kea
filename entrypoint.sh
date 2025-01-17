@@ -3,7 +3,7 @@ set -e
 
 # Helper function used to make all logging messages look similar.
 log() {
-    echo "$(date '+%Y-%M-%d %H:%M:%S.000') INFO  [entrypoint] $1"
+    echo "$(date '+%Y-%m-%d %H:%M:%S.000') INFO  [entrypoint] $1"
 }
 log "Starting Kea ${KEA_EXECUTABLE} container"
 
