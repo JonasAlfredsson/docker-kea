@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.9.0
+        uses: docker/setup-buildx-action@v3.10.0
 
       - name: Build the amd64 version of the Debian image
         run: make all
@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.9.0
+        uses: docker/setup-buildx-action@v3.10.0
 
       - name: Build the amd64 version of the Alpine image
         run: make all-alpine
