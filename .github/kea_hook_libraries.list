@@ -2,8 +2,8 @@ libdhcp_bootp.so
 libdhcp_flex_option.so
 libdhcp_ha.so
 libdhcp_lease_cmds.so
-libdhcp_mysql.so
+libdhcp_mysql_cb.so
 libdhcp_perfmon.so
-libdhcp_pgsql.so
+libdhcp_pgsql_cb.so
 libdhcp_run_script.so
 libdhcp_stat_cmds.so
