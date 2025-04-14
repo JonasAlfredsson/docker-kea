@@ -144,13 +144,27 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 # libdhcp_cb_cmds.so library, so they are excluded.
 FROM dhcp4-slim AS dhcp4
 COPY --from=builder \
+    /hooks/libddns_gss_tsig.so \
     /hooks/libdhcp_bootp.so \
+    /hooks/libdhcp_class_cmds.so \
+    /hooks/libdhcp_ddns_tuning.so \
+    /hooks/libdhcp_flex_id.so \
     /hooks/libdhcp_flex_option.so \
     /hooks/libdhcp_ha.so \
+    /hooks/libdhcp_host_cache.so \
+    /hooks/libdhcp_host_cmds.so \
     /hooks/libdhcp_lease_cmds.so \
+    /hooks/libdhcp_lease_query.so \
+    /hooks/libdhcp_legal_log.so \
+    /hooks/libdhcp_limits.so \
+    /hooks/libdhcp_mysql.so \
     /hooks/libdhcp_perfmon.so \
+    /hooks/libdhcp_pgsql.so \
+    /hooks/libdhcp_ping_check.so \
+    /hooks/libdhcp_radius.so \
     /hooks/libdhcp_run_script.so \
     /hooks/libdhcp_stat_cmds.so \
+    /hooks/libdhcp_subnet_cmds.so \
     /usr/local/lib/kea/hooks/
 
 
@@ -168,12 +182,26 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 # libdhcp_cb_cmds.so library, so they are excluded.
 FROM dhcp6-slim AS dhcp6
 COPY --from=builder \
+    /hooks/libddns_gss_tsig.so \
+    /hooks/libdhcp_class_cmds.so \
+    /hooks/libdhcp_ddns_tuning.so \
+    /hooks/libdhcp_flex_id.so \
     /hooks/libdhcp_flex_option.so \
     /hooks/libdhcp_ha.so \
+    /hooks/libdhcp_host_cache.so \
+    /hooks/libdhcp_host_cmds.so \
     /hooks/libdhcp_lease_cmds.so \
+    /hooks/libdhcp_lease_query.so \
+    /hooks/libdhcp_legal_log.so \
+    /hooks/libdhcp_limits.so \
+    /hooks/libdhcp_mysql.so \
     /hooks/libdhcp_perfmon.so \
+    /hooks/libdhcp_pgsql.so \
+    /hooks/libdhcp_ping_check.so \
+    /hooks/libdhcp_radius.so \
     /hooks/libdhcp_run_script.so \
     /hooks/libdhcp_stat_cmds.so \
+    /hooks/libdhcp_subnet_cmds.so \
     /usr/local/lib/kea/hooks/
 
 
