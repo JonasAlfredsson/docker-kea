@@ -1,7 +1,7 @@
 #
 # Define the base OS image in a single place.
 #
-FROM debian:bullseye-slim AS base
+FROM debian:bookworm-slim AS base
 
 #
 # The builder step is where Kea is compiled.
@@ -96,12 +96,12 @@ RUN addgroup --system --gid 101 ${KEA_USER} && \
 # This is not identical to what is pulled in when doing an apt-get install of
 # the official package, but it appears to work fine.
     apt-get update && apt-get install -y \
-        libboost-system1.74.0 \
+        libboost-system1.81.0 \
         libkrb5-3 \
         liblog4cplus-2.0.5 \
         libmariadb3 \
         libpq5 \
-        libssl1.1 \
+        libssl3 \
     && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
