@@ -49,6 +49,9 @@ RUN curl -LORf "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.ta
 # Set the extracted location as our new workdir.
 WORKDIR /kea-${KEA_VERSION}
 
+# PG libs are at /usr/lib/postgresql/{version}/lib
+RUN ln -snf /usr/lib/postgresql/15/lib/*.a /usr/lib/x86_64-linux-gnu/
+
 # Configure with all the settings we want, and then build it.
 # This will take ~5 hours for arm/v7 on an average 4 core desktop.
 RUN meson setup build \
