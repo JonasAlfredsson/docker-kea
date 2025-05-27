@@ -10,10 +10,11 @@ FROM base AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update
+RUN apt-get install -qq -y \
         apt-transport-https \
         gnupg2 \
-    && apt-get install -y \
+    && apt-get install -qq -y \
         build-essential \
         curl \
         libboost-system-dev \
