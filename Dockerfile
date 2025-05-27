@@ -21,9 +21,21 @@ RUN apt-get update && apt-get install -y \
         liblog4cplus-dev \
         libmariadb-dev \
         libmariadb-dev-compat \
-        libssl-dev=1.1.1* \
-        postgresql-server-dev-all \
-        xz-utils
+        postgresql-server-dev-15 \
+        liblz4-dev \
+        libselinux1-dev \
+        libpam-dev \
+        libreadline-dev \
+        libzstd-dev \
+        libxslt1-dev
+
+# Install meson from pip to get up to date release
+RUN apt-get install -qq -y \
+        python3 \
+        python3-venv \
+    && python3 -m venv /meson-venv
+ENV PATH="/meson-venv/bin:${PATH}"
+RUN python -m pip install meson ninja
 
 ARG KEA_VERSION
 # Download and unpack the correct tarball (also verify the signature).
@@ -39,20 +51,21 @@ WORKDIR /kea-${KEA_VERSION}
 
 # Configure with all the settings we want, and then build it.
 # This will take ~5 hours for arm/v7 on an average 4 core desktop.
-RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-static=no && \
-    make -j$(nproc)
+RUN meson setup build \
+    --buildtype release \
+    --strip \
+    --prefix /usr/local \
+    --libdir /usr/local/lib \
+    -D mysql=enabled \
+    -D postgresql=enabled \
+    -D krb5=enabled \
+    -D crypto=openssl \
+    -D netconf=disabled \
+    -D cpp_std=c++20
 
 # Having this in its own step makes it easier to experiment.
-RUN make install
-
-# Let's reduce the files needed to be copied later by removing stuff we don't
-# seem to need.
-RUN cd /usr/local/lib/ && \
-    rm -v *.la && \
-    rm -v kea/hooks/*.la
-
-# Strip debug symbols to reduce file size of binaries
-RUN find /usr/local/sbin/ /usr/local/lib/ -type f -exec strip --strip-unneeded {} \;
+RUN meson compile -C build
+RUN meson install -C build
 
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
