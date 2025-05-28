@@ -96,3 +96,8 @@ test4:
 	docker run -it --rm \
 		jonasal/network-tools:latest \
 		nmap --script broadcast-dhcp-discover
+
+.PHONY: push-dev
+push-dev:
+	docker tag kea-dhcp4:local jonasal/kea-dhcp4:dev
+	docker push jonasal/kea-dhcp4:dev
