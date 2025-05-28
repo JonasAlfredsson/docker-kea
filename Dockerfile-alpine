@@ -36,11 +36,17 @@ RUN apk add --no-cache \
 # Install the necessary pip packages.
     pip install meson ninja
 
+# Assert that the PGP Public key is the same as the one in this repo, and then
+# install it for the verification step.
+COPY isc-keyblock.asc /
+RUN curl -L "https://www.isc.org/docs/isc-keyblock.asc" -o /latest_key.isc && \
+    diff /isc-keyblock.asc /latest_key.isc && \
+    install -m 0700 -o root -g root -d /root/.gnupg && \
+    gpg2 --import /isc-keyblock.asc
+
 ARG KEA_VERSION
 # Download and unpack the correct tarball (also verify the signature).
 RUN curl -LORf "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.xz{,.asc}" && \
-    install -m 0700 -o root -g root -d /root/.gnupg && \
-    curl -L "https://www.isc.org/docs/isc-keyblock.asc" | gpg2 --import && \
     gpg2 --no-options --verbose --keyid-format 0xlong --keyserver-options auto-key-retrieve=true \
         --verify kea-${KEA_VERSION}.tar.xz.asc kea-${KEA_VERSION}.tar.xz
 # For some reason tar hangs if we do not do it in its own RUN...
