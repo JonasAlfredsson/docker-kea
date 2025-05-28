@@ -174,9 +174,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 # The DHCP4 service image with all relevant hooks included.
 #
 FROM dhcp4-slim AS dhcp4
-COPY --from=builder \
-    /hooks/* \
-    /usr/local/lib/kea/hooks/
+COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
 
 #
@@ -190,9 +188,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 # The DHCP6 service image with all relevant hooks included.
 #
 FROM dhcp6-slim AS dhcp6
-COPY --from=builder \
-    /hooks/* \
-    /usr/local/lib/kea/hooks/
+COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
 
 #
