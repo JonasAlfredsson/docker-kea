@@ -14,13 +14,13 @@ RUN set -e && apk add --no-cache \
         curl \
         gnupg \
     && apk add --no-cache \
-        meson \
-        g++ \
         boost-dev \
-        openssl-dev \
+        g++ \
         krb5-dev \
         log4cplus-dev \
         mariadb-dev \
+        meson \
+        openssl-dev \
         postgresql-dev
 
 ARG KEA_VERSION
@@ -37,8 +37,7 @@ RUN tar xpf kea-${KEA_VERSION}.tar.xz
 # Set the extracted location as our new workdir.
 WORKDIR /kea-${KEA_VERSION}
 
-# Configure with all the settings we want, and then build it.
-# This will take >7 hours for arm/v7 on an average 4 core desktop.
+# Configure with all the settings we want.
 RUN meson setup build \
     --buildtype release \
     --install-umask 0022 \
@@ -52,7 +51,9 @@ RUN meson setup build \
     -D netconf=disabled \
     -D cpp_std=c++20
 
-# Having this in its own step makes it easier to experiment.
+# Then we build and install Kea. Having these as individual steps makes it
+# easier to experiment.
+# NOTE: This will take >7 hours for arm/v7 on an average 4 core desktop.
 RUN meson compile -C build
 RUN meson install -C build
 

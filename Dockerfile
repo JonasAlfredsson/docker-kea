@@ -11,6 +11,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
 RUN apt-get update
+ARG PG_INSTALL_VERSION=15
 RUN apt-get install -qq -y \
         apt-transport-https \
         gnupg2 \
@@ -20,15 +21,19 @@ RUN apt-get install -qq -y \
         libboost-system-dev \
         libkrb5-dev \
         liblog4cplus-dev \
+        liblz4-dev \
         libmariadb-dev \
         libmariadb-dev-compat \
-        postgresql-server-dev-15 \
-        liblz4-dev \
-        libselinux1-dev \
         libpam-dev \
         libreadline-dev \
+        libselinux1-dev \
+        libxslt1-dev \
         libzstd-dev \
-        libxslt1-dev
+        postgresql-server-dev-${PG_INSTALL_VERSION} \
+    && \
+# The PostgreSQL libs are at /usr/lib/postgresql/{version}/lib, symlink them to
+# a location which will be included automatically during the compile step.
+    ln -snf /usr/lib/postgresql/${PG_INSTALL_VERSION}/lib/*.a /usr/lib/x86_64-linux-gnu/
 
 # Install meson from pip to get up to date release
 RUN apt-get install -qq -y \
@@ -50,11 +55,7 @@ RUN curl -LORf "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.ta
 # Set the extracted location as our new workdir.
 WORKDIR /kea-${KEA_VERSION}
 
-# PG libs are at /usr/lib/postgresql/{version}/lib
-RUN ln -snf /usr/lib/postgresql/15/lib/*.a /usr/lib/x86_64-linux-gnu/
-
-# Configure with all the settings we want, and then build it.
-# This will take ~5 hours for arm/v7 on an average 4 core desktop.
+# Configure with all the settings we want.
 RUN meson setup build \
     --buildtype release \
     --strip \
@@ -67,7 +68,9 @@ RUN meson setup build \
     -D netconf=disabled \
     -D cpp_std=c++20
 
-# Having this in its own step makes it easier to experiment.
+# Then we build and install Kea. Having these as individual steps makes it
+# easier to experiment.
+# NOTE: This will take ~5 hours for arm/v7 on an average 4 core desktop.
 RUN meson compile -C build
 RUN meson install -C build
 
