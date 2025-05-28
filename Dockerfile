@@ -27,6 +27,7 @@ RUN apt-get install -qq -y \
         libpam-dev \
         libreadline-dev \
         libselinux1-dev \
+        libssl-dev=3.0.* \
         libxslt1-dev \
         libzstd-dev \
         postgresql-server-dev-${PG_INSTALL_VERSION} \
