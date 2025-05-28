@@ -16,10 +16,6 @@ RUN set -e && apk add --no-cache \
     && apk add --no-cache \
         meson \
         g++ \
-        bison \
-        flex \
-        libcap \
-        python3-dev \
         boost-dev \
         openssl-dev \
         krb5-dev \
