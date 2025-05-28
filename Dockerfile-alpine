@@ -42,13 +42,15 @@ WORKDIR /kea-${KEA_VERSION}
 RUN meson setup build \
     --buildtype release \
     --install-umask 0022 \
-    --libexecdir /usr/local/lib \
+    --strip \
     --prefix /usr/local \
+    --libdir /usr/local/lib \
     -D mysql=enabled \
     -D postgresql=enabled \
     -D krb5=enabled \
     -D crypto=openssl \
-    -D netconf=disabled
+    -D netconf=disabled \
+    -D cpp_std=c++20
 
 # Having this in its own step makes it easier to experiment.
 RUN meson compile -C build
