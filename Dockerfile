@@ -33,7 +33,7 @@ RUN apt-get install -qq -y \
     && \
 # The PostgreSQL libs are at /usr/lib/postgresql/{version}/lib, symlink them to
 # a location which will be included automatically during the compile step.
-    ln -snf /usr/lib/postgresql/${PG_INSTALL_VERSION}/lib/*.a /usr/lib/x86_64-linux-gnu/
+    ln -snf /usr/lib/postgresql/${PG_INSTALL_VERSION}/lib/*.a /usr/local/lib/
 
 # Needed in order to install Python packages via PIP after PEP 668 was
 # introduced, but I believe this is safe since we are in a container without
