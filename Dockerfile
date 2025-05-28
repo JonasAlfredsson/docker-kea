@@ -35,13 +35,19 @@ RUN apt-get install -qq -y \
 # a location which will be included automatically during the compile step.
     ln -snf /usr/lib/postgresql/${PG_INSTALL_VERSION}/lib/*.a /usr/lib/x86_64-linux-gnu/
 
-# Install meson from pip to get up to date release
+# Needed in order to install Python packages via PIP after PEP 668 was
+# introduced, but I believe this is safe since we are in a container without
+# any real need to cater to other programs/environments.
+ARG PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Install Python and then meson from pip to get up to date release.
 RUN apt-get install -qq -y \
         python3 \
-        python3-venv \
-    && python3 -m venv /meson-venv
-ENV PATH="/meson-venv/bin:${PATH}"
-RUN python -m pip install meson ninja
+    && \
+# Install the latest version of PIP, Setuptools and Wheel.
+    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
+# Install the necessary pip packages.
+    pip install meson ninja
 
 ARG KEA_VERSION
 # Download and unpack the correct tarball (also verify the signature).
