@@ -1,7 +1,7 @@
 # The Makefile will be the "source of truth" when it comes to which version of
 # Kea we are to build. Having it in a single place will make life easier for us
 # in the future.
-KEA_VERSION="2.7.7"
+KEA_VERSION="2.7.8"
 
 # These are the build functions, they will in turn call upon the Bash script
 # with the correct arguments.
@@ -96,3 +96,8 @@ test4:
 	docker run -it --rm \
 		jonasal/network-tools:latest \
 		nmap --script broadcast-dhcp-discover
+
+.PHONY: push-dev
+push-dev:
+	docker tag kea-dhcp4:local jonasal/kea-dhcp4:dev
+	docker push jonasal/kea-dhcp4:dev

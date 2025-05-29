@@ -1,7 +1,7 @@
 #
 # Define the base OS image in a single place.
 #
-FROM debian:bullseye-slim AS base
+FROM debian:bookworm-slim AS base
 
 #
 # The builder step is where Kea is compiled.
@@ -10,48 +10,82 @@ FROM base AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update
+ARG PG_INSTALL_VERSION=15
+RUN apt-get install -qq -y \
         apt-transport-https \
         gnupg2 \
-    && apt-get install -y \
+    && apt-get install -qq -y \
         build-essential \
         curl \
         libboost-system-dev \
         libkrb5-dev \
         liblog4cplus-dev \
+        liblz4-dev \
         libmariadb-dev \
         libmariadb-dev-compat \
-        libssl-dev=1.1.1* \
-        postgresql-server-dev-all
+        libpam-dev \
+        libreadline-dev \
+        libselinux1-dev \
+        libssl-dev=3.0.* \
+        libxslt1-dev \
+        libzstd-dev \
+        postgresql-server-dev-${PG_INSTALL_VERSION} \
+    && \
+# The PostgreSQL libs are at /usr/lib/postgresql/{version}/lib, symlink them to
+# a location which will be included automatically during the compile step.
+    ln -snf /usr/lib/postgresql/${PG_INSTALL_VERSION}/lib/*.a /usr/local/lib/
+
+# Needed in order to install Python packages via PIP after PEP 668 was
+# introduced, but I believe this is safe since we are in a container without
+# any real need to cater to other programs/environments.
+ARG PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Install Python and then meson from pip to get up to date release.
+RUN apt-get install -qq -y \
+        python3 \
+    && \
+# Install the latest version of PIP, Setuptools and Wheel.
+    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
+# Install the necessary pip packages.
+    pip install meson ninja
+
+# Assert that the PGP Public key is the same as the one in this repo, and then
+# install it for the verification step.
+COPY isc-keyblock.asc /
+RUN curl -L "https://www.isc.org/docs/isc-keyblock.asc" -o /latest_key.isc && \
+    diff /isc-keyblock.asc /latest_key.isc && \
+    install -m 0700 -o root -g root -d /root/.gnupg && \
+    gpg2 --import /isc-keyblock.asc
 
 ARG KEA_VERSION
 # Download and unpack the correct tarball (also verify the signature).
-RUN curl -LOR "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.gz{,.asc}" && \
-    install -m 0700 -o root -g root -d /root/.gnupg && \
-    curl -L "https://www.isc.org/docs/isc-keyblock.asc" | gpg2 --import && \
+RUN curl -LORf "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.xz{,.asc}" && \
     gpg2 --no-options --verbose --keyid-format 0xlong --keyserver-options auto-key-retrieve=true \
-        --verify kea-${KEA_VERSION}.tar.gz.asc kea-${KEA_VERSION}.tar.gz && \
-    tar xzpf kea-${KEA_VERSION}.tar.gz
+        --verify kea-${KEA_VERSION}.tar.xz.asc kea-${KEA_VERSION}.tar.xz && \
+    tar xpf kea-${KEA_VERSION}.tar.xz
 
 # Set the extracted location as our new workdir.
 WORKDIR /kea-${KEA_VERSION}
 
-# Configure with all the settings we want, and then build it.
-# This will take ~5 hours for arm/v7 on an average 4 core desktop.
-RUN ./configure --with-openssl --with-mysql --with-pgsql --with-gssapi --enable-static=no && \
-    make -j$(nproc)
+# Configure with all the settings we want.
+RUN meson setup build \
+    --buildtype release \
+    --strip \
+    --prefix /usr/local \
+    --libdir /usr/local/lib \
+    -D mysql=enabled \
+    -D postgresql=enabled \
+    -D krb5=enabled \
+    -D crypto=openssl \
+    -D netconf=disabled \
+    -D cpp_std=c++20
 
-# Having this in its own step makes it easier to experiment.
-RUN make install
-
-# Let's reduce the files needed to be copied later by removing stuff we don't
-# seem to need.
-RUN cd /usr/local/lib/ && \
-    rm -v *.la && \
-    rm -v kea/hooks/*.la
-
-# Strip debug symbols to reduce file size of binaries
-RUN find /usr/local/sbin/ /usr/local/lib/ -type f -exec strip --strip-unneeded {} \;
+# Then we build and install Kea. Having these as individual steps makes it
+# easier to experiment.
+# NOTE: This will take ~5 hours for arm/v7 on an average 4 core desktop.
+RUN meson compile -C build
+RUN meson install -C build
 
 # There are a couple additional "hook" features located in this folder which
 # will most likely not be needed by the average user, so let's exclude them
@@ -78,12 +112,12 @@ RUN addgroup --system --gid 101 ${KEA_USER} && \
 # This is not identical to what is pulled in when doing an apt-get install of
 # the official package, but it appears to work fine.
     apt-get update && apt-get install -y \
-        libboost-system1.74.0 \
+        libboost-system1.81.0 \
         libkrb5-3 \
         liblog4cplus-2.0.5 \
         libmariadb3 \
         libpq5 \
-        libssl1.1 \
+        libssl3 \
     && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
@@ -140,32 +174,8 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 #
 # The DHCP4 service image with all relevant hooks included.
 #
-# The libdhcp_mysql_cb.so and libdhcp_pgsql_cb.so libraries depend on the paid
-# libdhcp_cb_cmds.so library, so they are excluded.
 FROM dhcp4-slim AS dhcp4
-COPY --from=builder \
-    /hooks/libddns_gss_tsig.so \
-    /hooks/libdhcp_bootp.so \
-    /hooks/libdhcp_class_cmds.so \
-    /hooks/libdhcp_ddns_tuning.so \
-    /hooks/libdhcp_flex_id.so \
-    /hooks/libdhcp_flex_option.so \
-    /hooks/libdhcp_ha.so \
-    /hooks/libdhcp_host_cache.so \
-    /hooks/libdhcp_host_cmds.so \
-    /hooks/libdhcp_lease_cmds.so \
-    /hooks/libdhcp_lease_query.so \
-    /hooks/libdhcp_legal_log.so \
-    /hooks/libdhcp_limits.so \
-    /hooks/libdhcp_mysql.so \
-    /hooks/libdhcp_perfmon.so \
-    /hooks/libdhcp_pgsql.so \
-    /hooks/libdhcp_ping_check.so \
-    /hooks/libdhcp_radius.so \
-    /hooks/libdhcp_run_script.so \
-    /hooks/libdhcp_stat_cmds.so \
-    /hooks/libdhcp_subnet_cmds.so \
-    /usr/local/lib/kea/hooks/
+COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
 
 #
@@ -178,31 +188,8 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 #
 # The DHCP6 service image with all relevant hooks included.
 #
-# The libdhcp_mysql_cb.so and libdhcp_pgsql_cb.so libraries depend on the paid
-# libdhcp_cb_cmds.so library, so they are excluded.
 FROM dhcp6-slim AS dhcp6
-COPY --from=builder \
-    /hooks/libddns_gss_tsig.so \
-    /hooks/libdhcp_class_cmds.so \
-    /hooks/libdhcp_ddns_tuning.so \
-    /hooks/libdhcp_flex_id.so \
-    /hooks/libdhcp_flex_option.so \
-    /hooks/libdhcp_ha.so \
-    /hooks/libdhcp_host_cache.so \
-    /hooks/libdhcp_host_cmds.so \
-    /hooks/libdhcp_lease_cmds.so \
-    /hooks/libdhcp_lease_query.so \
-    /hooks/libdhcp_legal_log.so \
-    /hooks/libdhcp_limits.so \
-    /hooks/libdhcp_mysql.so \
-    /hooks/libdhcp_perfmon.so \
-    /hooks/libdhcp_pgsql.so \
-    /hooks/libdhcp_ping_check.so \
-    /hooks/libdhcp_radius.so \
-    /hooks/libdhcp_run_script.so \
-    /hooks/libdhcp_stat_cmds.so \
-    /hooks/libdhcp_subnet_cmds.so \
-    /usr/local/lib/kea/hooks/
+COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
 
 #
