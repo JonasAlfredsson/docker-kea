@@ -93,14 +93,14 @@ RUN addgroup -S -g 101 ${KEA_USER} && \
     && \
 # Make sure some directories mentioned in the documentation are present and
 # owned by the Kea user.
-    install -m 0775 -o ${KEA_USER} -g ${KEA_USER} -d \
+    install -m 0750 -o ${KEA_USER} -g ${KEA_USER} -d \
         /opt/kea \
         /usr/local/var/log/kea \
         /usr/local/var/lib/kea \
         /usr/local/var/run/kea \
     && \
 # Create directories we want available for easy configuration management.
-    install -m 0775 -o ${KEA_USER} -g ${KEA_USER} -d \
+    install -m 0750 -o ${KEA_USER} -g ${KEA_USER} -d \
           /kea \
           /kea/config \
           /kea/leases \
