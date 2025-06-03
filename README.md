@@ -46,9 +46,22 @@ available.
 ## Usage
 
 ### Environment Variables
+There are a couple of environment variables present in the container that
+allow for some customization, however, some of them should not be touched.
 
+#### Executable Information
 - `KEA_EXECUTABLE`: Should **not** be modified, is used by [`entrypoint.sh`](./entrypoint.sh).
 - `KEA_USER`: Currently does nothing, might be used in the future.
+
+#### Data Directories
+Because of strict [path limitations][31] these variables need to be defined in
+order to allow us to use the directory structure mentioned
+[below](#useful-directories). These can be changed if desired.
+
+- `KEA_DHCP_DATA_DIR`: Location of the leases "memfile" (Default: `/kea/leases`)
+- `KEA_LOG_FILE_DIR`: Output directory of log files (Default: `/kea/logs`)
+- `KEA_LEGAL_LOG_DIR`: Output directory of forensic log files (Default: `/kea/logs`)
+- `KEA_CONTROL_SOCKET_DIR`: Directory for any sockets created (Default: `/kea/sockets`)
 
 ### Useful Directories
 There are a few directories present inside the images that may be utilized if
@@ -60,16 +73,16 @@ your usecase calls for it.
 > raw sockets.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
-- `/kea/leases`: Good location to place the leases memfile if used.
+- `/kea/leases`: Good location for the leases "memfile" if used.
 - `/kea/logs`: Good location to output any logs to.
 - `/kea/sockets`: Host mount this in order to share sockets between containers.
 - `/entrypoint.d`: Place any custom scripts you want executed at the start of the container here.
 
 All the folders under `kea/` may be mounted individually or you can just mount
 the entire `kea/` folder, however, then you need to manually create the
-subfolders since Kea is not able to do so itself. See the advanced
-[docker-compose](./examples/advanced/docker-compose.yaml) example for
-inspiration.
+subfolders (with `750` permissions) since Kea is not able to do so itself. See
+the advanced [docker-compose](./examples/advanced/docker-compose.yaml) example
+for inspiration.
 
 ### The DHCP Server
 Each image/service needs its own specific configuration file, so you will need
@@ -230,3 +243,4 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [28]: https://www.isc.org/blogs/isc-dhcp-eol/
 [29]: https://www.isc.org/dhcp_migration/
 [30]: https://reports.kea.isc.org/dev_guide/d2/d96/ctrlSocket.html#ctrlSocketClient
+[31]: https://github.com/JonasAlfredsson/docker-kea/issues/82
