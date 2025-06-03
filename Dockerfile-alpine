@@ -92,7 +92,14 @@ FROM base AS common
 # and while I think it is stupid that the numbers are not identical it is the
 # same as for the Bind9 package so let's keep it for consistency.
 # Currently this does not make Kea run as this user, but we prepare for it.
-ENV KEA_USER=kea
+ENV KEA_USER=kea \
+# Since 2.7.9/2.6.3/2.4.2 we need to define these variables, else Kea will not
+# start: https://github.com/JonasAlfredsson/docker-kea/issues/82
+    KEA_DHCP_DATA_DIR=/kea/leases \
+    KEA_LOG_FILE_DIR=/kea/logs \
+    KEA_LEGAL_LOG_DIR=/kea/logs \
+    KEA_CONTROL_SOCKET_DIR=/kea/sockets
+
 RUN addgroup -S -g 101 ${KEA_USER} && \
     adduser -S -D -G ${KEA_USER} -H -g "Kea user" -s /sbin/nologin -u 101 ${KEA_USER} && \
 # We then need to install all the runtime dependencies of Kea.
@@ -123,9 +130,10 @@ RUN addgroup -S -g 101 ${KEA_USER} && \
     install -m 0750 -o ${KEA_USER} -g ${KEA_USER} -d \
           /kea \
           /kea/config \
-          /kea/leases \
-          /kea/logs \
-          /kea/sockets \
+          ${KEA_DHCP_DATA_DIR} \
+          ${KEA_LOG_FILE_DIR} \
+          ${KEA_LEGAL_LOG_DIR} \
+          ${KEA_CONTROL_SOCKET_DIR} \
     && \
     mkdir /entrypoint.d
 

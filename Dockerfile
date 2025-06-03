@@ -106,7 +106,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 # "--force-badname" flag which seems suboptimal. I have therefore made the
 # decision to use the name without this underscore.
 # Currently this does not make Kea run as this user, but we prepare for it.
-ENV KEA_USER=kea
+ENV KEA_USER=kea \
+# Since 2.7.9/2.6.3/2.4.2 we need to define these variables, else Kea will not
+# start: https://github.com/JonasAlfredsson/docker-kea/issues/82
+    KEA_DHCP_DATA_DIR=/kea/leases \
+    KEA_LOG_FILE_DIR=/kea/logs \
+    KEA_LEGAL_LOG_DIR=/kea/logs \
+    KEA_CONTROL_SOCKET_DIR=/kea/sockets
+
 RUN addgroup --system --gid 101 ${KEA_USER} && \
     adduser --system --disabled-login --ingroup ${KEA_USER} --no-create-home --gecos "Kea user" --shell /bin/false --uid 101 ${KEA_USER} && \
 # We then need to install all the runtime dependencies of Kea.
@@ -135,9 +142,10 @@ RUN addgroup --system --gid 101 ${KEA_USER} && \
     install -m 0750 -o ${KEA_USER} -g ${KEA_USER} -d \
           /kea \
           /kea/config \
-          /kea/leases \
-          /kea/logs \
-          /kea/sockets \
+          ${KEA_DHCP_DATA_DIR} \
+          ${KEA_LOG_FILE_DIR} \
+          ${KEA_LEGAL_LOG_DIR} \
+          ${KEA_CONTROL_SOCKET_DIR} \
     && \
     mkdir /entrypoint.d
 
