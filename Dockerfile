@@ -99,6 +99,7 @@ RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
 # All the services basically need the same stuff so let's make a common layer.
 #
 FROM base AS common
+LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # In Debian the APT package installs the user "_kea", with uid 101 and gid 101,
