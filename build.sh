@@ -7,7 +7,7 @@ set -e
 #   ./build.sh "dhcp4" "2.1.7" "alpine"
 #
 # Input arguments:
-# $1: Kea executable (valid strings: "dhcp4", "dhcp6", "ctrl-agent")
+# $1: Kea executable (valid strings: "dhcp4", "dhcp6", "admin", "ctrl-agent")
 # $2: Kea version (e.g. "2.1.7")
 # $3: Alpine build (omit for Debian build or provide "alpine" for Alpine build)
 
