@@ -28,6 +28,7 @@ running inside:
 - [`jonasal/kea-dhcp4:<version>`][12]
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-dhcp-ddns:<version>`][25]
+- [`jonasal/kea-admin:<version>`][33]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
 - (+ [`jonasal/kea-hooks:<version>`][16] - read about this in the [Kea Hooks](#kea-hooks) section)
 
@@ -181,6 +182,53 @@ More information about this may be found in the Management API section of the
 
 
 
+### Kea Admin
+
+Usage: kea-admin COMMAND BACKEND [parameters]
+
+COMMAND: Currently supported operations are:
+
+- `db-init`: Initializes new database. Useful for first time installation.
+- `db-version`: Checks version of the existing database schema. Useful for checking database version when preparing for an upgrade.
+- `db-upgrade`: Upgrades your database schema.
+- `lease-dump`: Dumps current leases to a memfile-ready CSV file.
+- `lease-upload`: Uploads leases from a CSV file to the database.
+- `stats-recount`: Recounts lease statistics.
+
+BACKEND - one of the supported backends: memfile|mysql|pgsql
+
+PARAMETERS: Parameters are optional in general, but may be required
+            for specific operations.
+ -h or --host hostname - specifies a hostname of a database to connect to
+ -P or --port port - specifies the TCP port to use for the database connection
+ -u or --user name - specifies username when connecting to a database
+ -p or --password [password] - specifies a password for the database connection;
+                               if omitted from the command line,
+                               then the user will be prompted for a password
+ -n or --name database - specifies a database name to connect to
+ -d or --directory - path to upgrade scripts (default: /usr/local/share/kea/scripts)
+ -v or --version - print kea-admin version and quit.
+ -x or --extra - specifies extra argument(s) to pass to the database command
+
+ Parameters specific to lease-dump, lease-upload:
+     -4 to dump IPv4 leases to file
+     -6 to dump IPv6 leases to file
+     -i or --input to specify the name of file from which leases will be uploaded
+     -o or --output to specify the name of file to which leases will be dumped
+     -y or --yes - assume yes on overwriting temporary files
+
+
+Example
+
+```bash
+ docker run -ti jonasal/kea-admin:3.0.0-alpine stats-recount mysql -h hostname  -P port  -n database  -u name  -p password  -4 --output lease-dump.csv
+```
+
+More information about this may be found in the Kea Database Administration section of the
+[documentation][32].
+
+
+
 ### Kea Hooks
 Kea has some extended features that are available as "[hooks][17]" which may be
 imported in those cases when they are specifically needed. Some are available
@@ -244,3 +292,5 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [29]: https://www.isc.org/dhcp_migration/
 [30]: https://reports.kea.isc.org/dev_guide/d2/d96/ctrlSocket.html#ctrlSocketClient
 [31]: https://github.com/JonasAlfredsson/docker-kea/issues/82
+[32]: https://kea.readthedocs.io/en/latest/arm/admin.html
+[33]: https://hub.docker.com/r/jonasal/kea-admin/tags
