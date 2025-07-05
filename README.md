@@ -28,6 +28,7 @@ running inside:
 - [`jonasal/kea-dhcp4:<version>`][12]
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-dhcp-ddns:<version>`][25]
+- [`jonasal/kea-admin:<version>-alpine`][33]
 - [`jonasal/kea-ctrl-agent:<version>`][14]
 - (+ [`jonasal/kea-hooks:<version>`][16] - read about this in the [Kea Hooks](#kea-hooks) section)
 
@@ -292,3 +293,4 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [30]: https://reports.kea.isc.org/dev_guide/d2/d96/ctrlSocket.html#ctrlSocketClient
 [31]: https://github.com/JonasAlfredsson/docker-kea/issues/82
 [32]: https://kea.readthedocs.io/en/latest/arm/admin.html
+[33]: https://hub.docker.com/r/jonasal/kea-admin/tags
