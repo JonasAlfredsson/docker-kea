@@ -188,8 +188,7 @@ Usage: kea-admin COMMAND BACKEND [parameters]
 COMMAND: Currently supported operations are:
 
  - db-init: Initializes new database. Useful for first time installation.
- - db-version: Checks version of the existing database schema. Useful
- -             for checking database version when preparing for an upgrade.
+ - db-version: Checks version of the existing database schema. Useful for checking database version when preparing for an upgrade.
  - db-upgrade: Upgrades your database schema.
  - lease-dump: Dumps current leases to a memfile-ready CSV file.
  - lease-upload: Uploads leases from a CSV file to the database.
