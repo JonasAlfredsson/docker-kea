@@ -217,7 +217,7 @@ PARAMETERS: Parameters are optional in general, but may be required
      -y or --yes - assume yes on overwriting temporary files
 
 
-## Usage
+Example
 
 ```bash
  docker run -ti jonasal/kea-admin:3.0.0-alpine stats-recount mysql -h hostname  -P port  -n database  -u name  -p password  -4 --output lease-dump.csv
