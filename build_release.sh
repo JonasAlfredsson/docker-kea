@@ -22,8 +22,8 @@ build () {
         --build-arg KEA_VERSION=${KEA_VERSION} \
         --target "${1}" \
         $(if [ $(( $(echo ${KEA_VERSION} | cut -d. -f 2 )%2 )) -eq 0 ]; then echo "-t jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1 )${2}"; fi) \
-        -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-2 )${2}" \
-        -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-3 )${2}" \
+        -t "cwier/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-2 )${2}" \
+        -t "cwier/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-3 )${2}" \
         ${3} \
         ./
 }
@@ -42,7 +42,7 @@ done
 # the cache should be present so the second iteration should be really quick.
 for should_push in false true; do
     for os in "debian" "alpine"; do
-        for target in "dhcp4-slim" "dhcp4" "dhcp6-slim" "dhcp6" "dhcp-ddns" "ctrl-agent" "hooks"; do
+        for target in "dhcp4-slim" "dhcp4" "dhcp6-slim" "dhcp6" "dhcp-ddns" "admin" "ctrl-agent" "hooks"; do
             build "${target}" "$(if [ "${os}" != "debian" ]; then echo "-${os}"; fi)" "$(if [ "${should_push}" == "true" ]; then echo "--push"; fi)"
         done
     done
