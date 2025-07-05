@@ -223,7 +223,7 @@ Example
  docker run -ti jonasal/kea-admin:3.0.0-alpine stats-recount mysql -h hostname  -P port  -n database  -u name  -p password  -4 --output lease-dump.csv
 ```
 
-More information about this may be found in the Management API section of the
+More information about this may be found in the Kea Database Administration section of the
 [documentation][32].
 
 
