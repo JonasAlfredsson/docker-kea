@@ -22,8 +22,8 @@ build () {
         --build-arg KEA_VERSION=${KEA_VERSION} \
         --target "${1}" \
         $(if [ $(( $(echo ${KEA_VERSION} | cut -d. -f 2 )%2 )) -eq 0 ]; then echo "-t jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1 )${2}"; fi) \
-        -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-2 )${2}" \
-        -t "jonasal/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-3 )${2}" \
+        -t "cwier/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-2 )${2}" \
+        -t "cwier/kea-${1}:$(echo ${KEA_VERSION} | cut -d. -f 1-3 )${2}" \
         ${3} \
         ./
 }
