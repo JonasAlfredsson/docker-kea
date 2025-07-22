@@ -2,6 +2,7 @@
 # Define the base OS image in a single place.
 #
 FROM alpine:3.22 AS base
+LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 #
 # The builder step is where Kea is compiled.
@@ -87,7 +88,6 @@ RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
 # All the services basically need the same stuff so let's make a common layer.
 #
 FROM base AS common
-LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 # In Alpine the APK package installs the user "kea", with uid 100 and gid 101,
 # and while I think it is stupid that the numbers are not identical it is the
