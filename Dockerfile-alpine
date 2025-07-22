@@ -179,6 +179,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local
 FROM dhcp4-slim AS dhcp4
 COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
+
 #
 # The DHCP6 service image without any hook libraries.
 #
@@ -198,12 +199,13 @@ COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 #
 FROM common AS admin
 ENV KEA_EXECUTABLE=admin
-COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
+RUN set -e && apk add --no-cache \
+# Install DB clients in order to be able to manage them.
+        postgresql-client \
+        mariadb-client
 COPY --from=builder /usr/local/sbin/kea-admin /usr/local/sbin/
-COPY --from=builder /usr/local/share/kea/scripts/admin-utils.sh /usr/local/share/kea/scripts/
-COPY --from=builder /usr/local/share/ /usr/local/share/
-COPY --from=builder /usr/bin/psql /usr/bin/
-COPY --from=builder /usr/bin/mysql /usr/bin/
+COPY --from=builder /usr/local/share/kea/scripts /usr/local/share/kea/scripts
+
 
 #
 # The Kea DHCP DDNS service image.
@@ -219,6 +221,7 @@ COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 FROM common AS ctrl-agent
 ENV KEA_EXECUTABLE=ctrl-agent
 COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
+
 
 #
 # The Hooks image

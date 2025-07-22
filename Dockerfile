@@ -1,3 +1,6 @@
+# We need to specify the PostgreSQL version when installing the needed libraries.
+ARG PG_INSTALL_VERSION=15
+
 #
 # Define the base OS image in a single place.
 #
@@ -12,7 +15,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
 RUN apt-get update
-ARG PG_INSTALL_VERSION=17
+ARG PG_INSTALL_VERSION
 RUN apt-get install -qq -y \
         apt-transport-https \
         gnupg2 \
@@ -31,7 +34,6 @@ RUN apt-get install -qq -y \
         libssl-dev=3.0.* \
         libxslt1-dev \
         libzstd-dev \
-        postgresql-client-${PG_INSTALL_VERSION} \
         postgresql-server-dev-${PG_INSTALL_VERSION} \
     && \
 # The PostgreSQL libs are at /usr/lib/postgresql/{version}/lib, symlink them to
@@ -202,14 +204,20 @@ COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local
 FROM dhcp6-slim AS dhcp6
 COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 
+
+#
+# The ADMIN service image for database init and upgrades.
+#
 FROM common AS admin
 ENV KEA_EXECUTABLE=admin
-COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
+ARG PG_INSTALL_VERSION
+RUN apt-get update && apt-get install -qq -y \
+# Install DB clients in order to be able to manage them.
+        postgresql-client-${PG_INSTALL_VERSION} \
+        mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/local/sbin/kea-admin /usr/local/sbin/
-COPY --from=builder /usr/local/share/kea/scripts/admin-utils.sh /usr/local/share/kea/scripts/
-COPY --from=builder /usr/local/share/ /usr/local/share/
-COPY --from=builder /usr/bin/psql /usr/bin/
-COPY --from=builder /usr/bin/mysql /usr/bin/
+COPY --from=builder /usr/local/share/kea/scripts /usr/local/share/kea/scripts
 
 
 #

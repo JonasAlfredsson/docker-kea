@@ -6,10 +6,10 @@ KEA_VERSION="3.0.0"
 # These are the build functions, they will in turn call upon the Bash script
 # with the correct arguments.
 .PHONY: all
-all: dhcp4-slim dhcp4 dhcp6-slim dhcp6 dhcp-ddns ctrl-agent hooks
+all: dhcp4-slim dhcp4 dhcp6-slim dhcp6 dhcp-ddns admin ctrl-agent hooks
 
 .PHONY: all-alpine
-all-alpine: dhcp4-slim-alpine dhcp4-alpine dhcp6-slim-alpine dhcp6-alpine dhcp-ddns-alpine ctrl-agent-alpine hooks-alpine
+all-alpine: dhcp4-slim-alpine dhcp4-alpine dhcp6-slim-alpine dhcp6-alpine dhcp-ddns-alpine admin-alpine ctrl-agent-alpine hooks-alpine
 
 .PHONY: dhcp4-slim
 dhcp4-slim:
@@ -58,6 +58,14 @@ dhcp-ddns:
 .PHONY: dhcp-ddns-alpine
 dhcp-ddns-alpine:
 	./build.sh "dhcp-ddns" $(KEA_VERSION) "alpine"
+
+.PHONY: admin
+admin:
+	./build.sh "admin" $(KEA_VERSION)
+
+.PHONY: admin-alpine
+admin-alpine:
+	./build.sh "admin" $(KEA_VERSION) "alpine"
 
 .PHONY: hooks
 hooks:
