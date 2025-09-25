@@ -11,7 +11,7 @@ set -eo pipefail
 
 latestStable=("3" "0" "1")
 stableChanged="false"
-latestDev=("3" "1" "1")
+latestDev=("3" "1" "2")
 devChanged="false"
 
 # Query the FTP repository and iterate over each line of the content returned.
