@@ -16,7 +16,7 @@ jobs:
         run: bash .github/update_checker.sh >> $GITHUB_ENV
 
       - name: Create an authorization token for the pull request step
-        uses: actions/create-github-app-token@v2.1.1
+        uses: actions/create-github-app-token@v2.1.4
         id: generate-token
         with:
           app-id: ${{ secrets.APP_ID }}
