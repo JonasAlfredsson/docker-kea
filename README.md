@@ -59,7 +59,7 @@ Because of strict [path limitations][31] these variables need to be defined in
 order to allow us to use the directory structure mentioned
 [below](#useful-directories). These can be changed if desired.
 
-- `KEA_DHCP_DATA_DIR`: Location of the leases "memfile" (Default: `/kea/leases`)
+- `KEA_DHCP_DATA_DIR`: Location of the leases "[memfile][34]" (Default: `/kea/leases`)
 - `KEA_LOG_FILE_DIR`: Output directory of log files (Default: `/kea/logs`)
 - `KEA_LEGAL_LOG_DIR`: Output directory of forensic log files (Default: `/kea/logs`)
 - `KEA_CONTROL_SOCKET_DIR`: Directory for any sockets created (Default: `/kea/sockets`)
@@ -74,7 +74,7 @@ your usecase calls for it.
 > raw sockets.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
-- `/kea/leases`: Good location for the leases "memfile" if used.
+- `/kea/leases`: Good location for the leases "[memfile][34]" if used.
 - `/kea/logs`: Good location to output any logs to.
 - `/kea/sockets`: Host mount this in order to share sockets between containers.
 - `/entrypoint.d`: Place any custom scripts you want executed at the start of the container here.
@@ -226,6 +226,83 @@ or
 RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 ```
 
+--------------------------------------------------------------------------------
+
+## Further Reading
+
+In this part you will find additional information about Kea that might be useful
+for you, read at your own leisure.
+
+### Backups
+
+> :warning: This is only relevant if you use the "[memfile][34]" leases storage.
+
+> TL;DR: Best method is to stop Kea and copy all files in `KEA_DHCP_DATA_DIR`,
+> but you _should_ be able to just to a "live" copy of `dhcp4.csv` and
+> `dhcp4.csv.2` **IF** `dhcp4.csv.1` is currently **NOT** present, else wait a
+> minute and try again.
+
+Unless you have changed the [`KEA_DHCP_DATA_DIR`](#data-directories) from the
+default value, you should be able to see the following two files in the
+`/kea/leases` directory:
+
+1. `dhcp4.csv`
+2. `dhcp4.csv.2`
+
+The first one is the "journal" file, where Kea will quickly (in an append only
+fashion) write any new lease that happens or any changes to the existing ones.
+This means that this file is always growing, and to handle this problem the
+[`kea-lfc`][35] process will run periodically which then results in the final
+"clean" `dhcp4.csv.2` file.
+
+The `dhcp4.csv.2` file is free of any redundant information, and is the state
+you would end up in if you iterated over the `dhcp4.csv` file and could go back
+and apply later changes to the original lease entry.
+
+The `dhcp4.csv` file is emptied after each `kea-flc` run, which means that "the
+current state" of Kea is actually the "base" `dhcp4.csv.2` file along with all
+of the changes that has happened since it was created (i.e. what is written in
+the `dhcp4.csv` "journal" file).
+
+However, this is the [simplified explanation][37], and the `kea-lfc` process
+actually makes use of the following [intermediary files][36]:
+
+- `dhcp4.csv.1`: The original `dhcp4.csv` file atomically renamed in order to work on a static file.
+- `dhcp4.csv.output`: The output file that will become the next `dhcp4.csv.2` file.
+- `dhcp4.csv.completed`: Intermediary rename after `lfc` process completed, but before rename to `dhcp4.csv.2`.
+
+During the time `dhcp4.csv` is renamed to `dhcp4.csv.1`, and a new `dhcp4.csv`
+file is created, Kea will not process any DHCP requests. However, this should
+be really quick, and the `kea-lfc` can then continue the cleanup process
+asynchronously in the background. It is robust to failures, and knows how to
+resume in case a crash mid-cleanup.
+
+What we can conclude from this is that the safest way to perform a backup is
+to stop the Kea process, so we know no cleanup is in process or any new leases
+are being written, and then make a copy of all the `dhcp4.csv*` files in the
+`KEA_DHCP_DATA_DIR` directory. This way we can guarantee a good state of all
+relevant files.
+
+However, it is not always reasonable to have this downtime, so another solution
+would be to check for the existence of the `dhcp4.csv.1` file, to assert no
+cleanup is in progress, and then make a copy of just the `dhcp4.csv` and
+`dhcp4.csv.2` files.
+
+To reduce the critical time spent between the two copy commands, one could
+first create hard links before copying them:
+
+```bash
+for f in "dhcp4.csv" "dhcp4.csv.2"; do
+    if [ -f "${KEA_DHCP_DATA_DIR}/dhcp4.csv.1" ]; then
+        echo "It looks like the kea-lfc process is running, try again later"
+        exit 1
+    fi
+    ln "${KEA_DHCP_DATA_DIR}/${f}" "${KEA_DHCP_DATA_DIR}/${f}.bak"
+done
+cp "${KEA_DHCP_DATA_DIR}"*.bak /secure/location/
+rm -v "${KEA_DHCP_DATA_DIR}*.bak"
+```
+
 
 
 
@@ -262,3 +339,7 @@ RUN ldconfig /usr/local/lib/kea/hooks  # <--- Alpine
 [31]: https://github.com/JonasAlfredsson/docker-kea/issues/82
 [32]: https://kea.readthedocs.io/en/latest/arm/admin.html
 [33]: https://hub.docker.com/r/jonasal/kea-admin/tags
+[34]: https://kea.readthedocs.io/en/latest/arm/dhcp4-srv.html#memfile-basic-storage-for-leases
+[35]: https://kea.readthedocs.io/en/latest/arm/lfc.html#kea-lfc
+[36]: https://gitlab.isc.org/isc-projects/kea/-/wikis/designs/Lease-File-Cleanup-design
+[37]: https://github.com/JonasAlfredsson/docker-kea/issues/68
