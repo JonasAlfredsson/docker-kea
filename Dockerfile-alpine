@@ -1,7 +1,7 @@
 #
 # Define the base OS image in a single place.
 #
-FROM alpine:3.22 AS base
+FROM alpine:3.23 AS base
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 #
