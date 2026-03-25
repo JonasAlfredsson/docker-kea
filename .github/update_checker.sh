@@ -9,7 +9,7 @@ set -eo pipefail
 #
 ################################################################################
 
-latestStable=("3" "0" "2")
+latestStable=("3" "0" "3")
 stableChanged="false"
 latestDev=("3" "1" "6")
 devChanged="false"
