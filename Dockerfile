@@ -1,10 +1,10 @@
 # We need to specify the PostgreSQL version when installing the needed libraries.
-ARG PG_INSTALL_VERSION=15
+ARG PG_INSTALL_VERSION=17
 
 #
 # Define the base OS image in a single place.
 #
-FROM debian:bookworm-slim AS base
+FROM debian:13.4-slim AS base
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 #
@@ -31,7 +31,7 @@ RUN apt-get install -qq -y \
         libpam-dev \
         libreadline-dev \
         libselinux1-dev \
-        libssl-dev=3.0.* \
+        libssl-dev=3.* \
         libxslt1-dev \
         libzstd-dev \
         postgresql-server-dev-${PG_INSTALL_VERSION} \
@@ -118,18 +118,21 @@ ENV KEA_USER=kea \
     KEA_LEGAL_LOG_DIR=/kea/logs \
     KEA_CONTROL_SOCKET_DIR=/kea/sockets
 
-RUN addgroup --system --gid 101 ${KEA_USER} && \
+RUN apt-get update && apt-get install -y \
+        adduser \
+    && \
+    addgroup --system --gid 101 ${KEA_USER} && \
     adduser --system --disabled-login --ingroup ${KEA_USER} --no-create-home --gecos "Kea user" --shell /bin/false --uid 101 ${KEA_USER} && \
 # We then need to install all the runtime dependencies of Kea.
 # This is not identical to what is pulled in when doing an apt-get install of
 # the official package, but it appears to work fine.
-    apt-get update && apt-get install -y \
-        libboost-system1.81.0 \
+    apt-get install -y \
+        libboost-system1.88.0 \
         libkrb5-3 \
-        liblog4cplus-2.0.5 \
+        liblog4cplus-2.0.5t64 \
         libmariadb3 \
         libpq5 \
-        libssl3 \
+        libssl3t64 \
     && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
