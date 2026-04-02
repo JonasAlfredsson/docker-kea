@@ -14,9 +14,8 @@ FROM base AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install all packages needed to build Kea.
-RUN apt-get update
 ARG PG_INSTALL_VERSION
-RUN apt-get install -qq -y \
+RUN apt-get update && apt-get install -qq -y \
         apt-transport-https \
         gnupg2 \
     && apt-get install -qq -y \
