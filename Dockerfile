@@ -223,14 +223,6 @@ COPY --from=builder /usr/local/share/kea/scripts /usr/local/share/kea/scripts
 
 
 #
-# The Kea Control Agent service image.
-#
-FROM common AS ctrl-agent
-ENV KEA_EXECUTABLE=ctrl-agent
-COPY --from=builder /usr/local/sbin/kea-ctrl-agent /usr/local/sbin/
-
-
-#
 # The Kea DHCP DDNS service image.
 #
 FROM common AS dhcp-ddns
