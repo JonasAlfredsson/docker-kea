@@ -8,10 +8,13 @@
             "interfaces": [ "*" ]
         },
 
-        "control-socket": {
-            "socket-type": "unix",
-            "socket-name": "/kea/sockets/dhcp6.socket"
-        },
+        "control-sockets": [
+            {
+                "socket-type": "http",
+                "socket-address": "127.0.0.1",
+                "socket-port": 8081
+            }
+        ],
 
         "lease-database": {
             "type": "memfile",

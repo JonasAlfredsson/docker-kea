@@ -19,14 +19,15 @@
         "renew-timer": 900,
         "rebind-timer": 1800,
 
-        // Control socket is required for communication between the Control
-        // Agent and the DHCP server. High Availability requires Control Agent
-        // to be running because lease updates are sent over the RESTful
-        // API between the HA peers.
-        "control-socket": {
-            "socket-type": "unix",
-            "socket-name": "/kea/sockets/dhcp4.socket"
-        },
+        // NOTE: Make sure that any control socket don't conflict with the "url"
+        // parameter of the HA peers.
+        "control-sockets": [
+            {
+                "socket-type": "http",
+                "socket-address": "0.0.0.0",
+                "socket-port": 8080
+            }
+        ],
 
         // HA requires two hooks libraries to be loaded: libdhcp_lease_cmds.so
         // and libdhcp_ha.so. The former handles incoming lease updates from the
@@ -85,19 +86,23 @@
                         // The default value is 60000ms (60 seconds).
                         "sync-timeout": 60000,
 
+                        // Disallow any other commands than those explicitly
+                        // necessary for the HA library to function.
+                        "restrict-commands": true,
+
                         // In the peers block we define all servers that are
                         // part of our setup.
                         "peers": [
                             {
-                                "name": "dhcp-1",
+                                "name": "dhcp-1", // Related to the "this-server-name" parameter.
 
-                                // This specifies the URL of the primary
-                                // instance. The Control Agent must run along
-                                // with the DHCPv4 server instance and the
-                                // "http-host" and "http-port" must be set to
-                                // the corresponding values.
+                                // This specifies the URL of the primary instance.
+                                // Running HA+MT uses a direct connection, which means that the DHCPv4
+                                // server open its own socket that must not conflict with any control
+                                // sockets defined.
                                 // This must use an IP and not a DNS name.
-                                "url": "http://10.10.10.3:8000/",
+                                // HTTPS config: https://kea.readthedocs.io/en/latest/arm/hooks.html#https-support
+                                "url": "http://10.10.10.2:8881",
 
                                 // This server is primary. The other one must be
                                 // secondary.
@@ -107,7 +112,7 @@
                             // This is the configuration of the HA peer.
                             {
                                 "name": "dhcp-2",
-                                "url": "http://10.10.10.5:8000/",
+                                "url": "http://10.10.10.3:8881",
                                 "role": "standby"
                             }
                         ]

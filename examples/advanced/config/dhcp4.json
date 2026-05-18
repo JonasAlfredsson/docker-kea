@@ -16,16 +16,20 @@
             "dhcp-socket-type": "raw"
         },
 
-        // Kea supports control channel, which is a way to receive management
-        // commands while the server is running. This is a Unix domain socket
-        // that receives commands formatted in JSON, e.g. config-set (which sets
-        // new configuration), config-reload (which tells Kea to reload its
-        // configuration from file), statistic-get (to retrieve statistics) and
-        // many more.
-        "control-socket": {
-            "socket-type": "unix",
-            "socket-name": "/kea/sockets/dhcp4.socket"
-        },
+        // Kea supports different control channels, which is a way to receive
+        // management commands while the server is running. Since 2.7.5 Kea
+        // allows for both unix and http(s), and som example commands are these:
+        // - config-set (which sets new configuration)
+        // - config-reload (which tells Kea to reload its configuration from file)
+        // - statistic-get (to retrieve statistics)
+        // and many more.
+        "control-sockets": [
+            {
+                "socket-type": "http",
+                "socket-address": "127.0.0.1",
+                "socket-port": 8080
+            }
+        ],
 
         // Specifies credentials to access lease database.
         "lease-database": {

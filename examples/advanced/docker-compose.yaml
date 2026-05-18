@@ -1,8 +1,10 @@
 version: '2'
 # This is an advanced setup which starts both the IPv4 and the IPv6 Kea DHCP
-# services, along with the Control Agent service that can forward HTTP API
-# requests to the relevant locations.
-# The REST API will be available on port 8000 on the localhost address.
+# services, with their HTTP sockets enabled and expsed on port 8080 and 8081
+# on "localhost" respectively. There is also a reverse proxy in front which will
+# set up HTTPS and make these services reachable from outside the host (but
+# can also be reached on just https://localhost/dhcp4/ and
+# https://localhost/dhcp6/).
 # !! ------------------------------------------------------------------------ !!
 # Both of the DHCP services use the 'host' network so they may actually serve
 # real leases. Docker does not handle routing of IPv6 by default, so it is the
@@ -10,39 +12,34 @@ version: '2'
 # !! ------------------------------------------------------------------------ !!
 services:
   dhcp4:
-    image: jonasal/kea-dhcp4:2
+    image: jonasal/kea-dhcp4:3
     restart: unless-stopped
     network_mode: host
     command: -c /kea/config/dhcp4.json
     volumes:
       - ./config:/kea/config
-      - sockets:/kea/sockets
       - leases:/kea/leases
       - ./logs:/kea/logs
 
   dhcp6:
-    image: jonasal/kea-dhcp6:2
+    image: jonasal/kea-dhcp6:3
     restart: unless-stopped
     network_mode: host
     command: -c /kea/config/dhcp6.json
     volumes:
       - ./config:/kea/config
-      - sockets:/kea/sockets
       - leases:/kea/leases
       - ./logs:/kea/logs
 
-  ctrl-agent:
-    image: jonasal/kea-ctrl-agent:2
+  nginx:
+    image: jonasal/nginx-certbot:6
     restart: unless-stopped
-    ports:
-      - 8000:8000
-    command: -c /kea/config/ctrl-agent.json
+    network_mode: host
     volumes:
-      - ./config:/kea/config
-      - sockets:/kea/sockets
-      - leases:/kea/leases
-      - ./logs:/kea/logs
+      - ./config:/etc/nginx/user_conf.d:ro
+    environment:
+      CERTBOT_EMAIL: your@email.com
+      USE_LOCAL_CA: 1 # This will use a local CA to generate certificates, which don't need a functioning internet connection.
 
 volumes:
-  sockets:
   leases:

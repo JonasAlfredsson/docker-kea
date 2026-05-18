@@ -4,67 +4,39 @@ version: '2'
 # lease updates from the other peer.
 services:
   dhcp-1:
-    image: jonasal/kea-dhcp4:2
+    image: jonasal/kea-dhcp4:3
     restart: unless-stopped
+    ports:
+      - 8081:8080
     environment:
       - THIS_SERVER_NAME=dhcp-1
     command: -c /kea/config/dhcp4.json
     volumes:
       - ./entrypoint.d:/entrypoint.d:ro
       - ./config:/kea/config:ro
-      - sockets-1:/kea/sockets
       - leases-1:/kea/leases
     networks:
       kea-testing:
         ipv4_address: 10.10.10.2
 
-  ctrl-agent-1:
-    image: jonasal/kea-ctrl-agent:2
+  dhcp-2:
+    image: jonasal/kea-dhcp4:3
     restart: unless-stopped
     ports:
-      - 8001:8000
-    command: -c /kea/config/ctrl-agent.json
-    volumes:
-      - ./config:/kea/config:ro
-      - sockets-1:/kea/sockets
-      - leases-1:/kea/leases
-    networks:
-      kea-testing:
-        ipv4_address: 10.10.10.3
-
-  dhcp-2:
-    image: jonasal/kea-dhcp4:2
-    restart: unless-stopped
+      - 8082:8080
     environment:
       - THIS_SERVER_NAME=dhcp-2
     command: -c /kea/config/dhcp4.json
     volumes:
       - ./entrypoint.d:/entrypoint.d:ro
       - ./config:/kea/config:ro
-      - sockets-2:/kea/sockets
       - leases-2:/kea/leases
     networks:
       kea-testing:
-        ipv4_address: 10.10.10.4
-
-  ctrl-agent-2:
-    image: jonasal/kea-ctrl-agent:2
-    restart: unless-stopped
-    ports:
-      - 8002:8000
-    command: -c /kea/config/ctrl-agent.json
-    volumes:
-      - ./config:/kea/config:ro
-      - sockets-2:/kea/sockets
-      - leases-2:/kea/leases
-    networks:
-      kea-testing:
-        ipv4_address: 10.10.10.5
+        ipv4_address: 10.10.10.3
 
 volumes:
-  sockets-1:
   leases-1:
-  sockets-2:
   leases-2:
 
 # Specify a network we hope will not interfere with anything else on the

@@ -2,8 +2,7 @@
 
 The ISC (Internet System Consortium) Kea DHCP server running inside a Docker
 container. Separate images for the IPv4 and IPv6 services, as well as an image
-for the Control Agent which exposes a RESTful API that can be used for
-querying/controlling the other services.
+for the DDNS service.
 
 Available as both Debian and Alpine images and for multiple architectures. In
 order to facilitate the last part this repo needs to build Kea from source,
@@ -29,17 +28,17 @@ running inside:
 - [`jonasal/kea-dhcp6:<version>`][13]
 - [`jonasal/kea-dhcp-ddns:<version>`][25]
 - [`jonasal/kea-admin:<version>`][33]
-- [`jonasal/kea-ctrl-agent:<version>`][14]
+- (discontinued since [3.1.8][38]) [`jonasal/kea-ctrl-agent:<version>`][14]
 - (+ [`jonasal/kea-hooks:<version>`][16] - read about this in the [Kea Hooks](#kea-hooks) section)
 
 > Just append `-alpine` to the tags above to get the Alpine image.
 
-It is possible to define how strict you want to lock down the version so `2`,
-`2.2` or `2.2.0` all work and the less specific tags will move to point to the
+It is possible to define how strict you want to lock down the version so `3`,
+`3.0` or `3.0.3` all work and the less specific tags will move to point to the
 latest of the more specific ones. One thing to be aware of is that **even**
-minor versions (`2.2`) are stable builds while **odd** (`2.3`) are development
+minor versions (`3.0`) are stable builds while **odd** (`3.1`) are development
 builds, therefore the major tagging of all the images built here will only track
-the stable releases. What this means is that `2 -> 2.2.0` even though `2.3.1` is
+the stable releases. What this means is that `3 -> 3.0.3` even though `3.1.8` is
 available.
 
 > There is no [`:latest`][15] tag since Kea updates may break things.
@@ -150,31 +149,33 @@ file for how it is done there. Then you should be able to serve leases on the
 network the host machine is connected to.
 
 
-### The Control Agent
-The DHCP services expose an API that may be used if the `control-socket`
+### The REST API
+The DHCP services expose an API that may be used if the `control-sockets`
 setting is defined in their configuration file:
 
 ```json
-"control-socket": {
-    "socket-type": "unix",
-    "socket-name": "/kea/sockets/dhcp4.socket"
-},
+"control-sockets": [
+    {
+        "socket-type": "http",
+        "socket-address": "127.0.0.1",
+        "socket-port": 8080
+    }
+],
 ```
 
-A unix socket is the only method available, and while you can push commands
-directly through this with the help of [`socat`][30] the `ctrl-agent` service
-provides a RESTful API that may be interfaced with instead. You just need
-to make sure this service can communicate with the `control-socket` of the DHCP
-service, and an example of how to do this can be found in the
-[advanced/](./examples/advanced/) folder along with the
-[docker-compose.yaml](./examples/advanced/docker-compose.yaml) file.
+> There exists a "unix" type socket as well, but I suggest you stick with the
+> "http" one, and it is not recommended to have more than one active. This was
+> used when the [Control Agent][39] service was needed to be able to use HTTP.
 
-When that is all up and running you should be able to make queries like this:
+An example of how to do this can be found in the [advanced/](./examples/advanced/)
+folder along with the [docker-compose.yaml](./examples/advanced/docker-compose.yaml)
+file where a reverse proxy (for HTTPS) also is set up. When that is all up and
+running you should be able to make queries like this:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" \
-    -d '{ "command": "config-get", "service": [ "dhcp4" ] }' \
-    http://localhost:8000/
+    -d '{ "command": "config-get" }' \
+    http://localhost:8080/
 ```
 
 More information about this may be found in the Management API section of the
@@ -343,3 +344,5 @@ rm -v "${KEA_DHCP_DATA_DIR}*.bak"
 [35]: https://kea.readthedocs.io/en/latest/arm/lfc.html#kea-lfc
 [36]: https://gitlab.isc.org/isc-projects/kea/-/wikis/designs/Lease-File-Cleanup-design
 [37]: https://github.com/JonasAlfredsson/docker-kea/issues/68
+[38]: https://gitlab.isc.org/isc-projects/kea/-/wikis/Release-Notes/release-notes-3.1.8
+[39]: https://kea.readthedocs.io/en/kea-3.0.3/arm/agent.html
