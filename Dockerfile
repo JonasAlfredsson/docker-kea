@@ -4,7 +4,7 @@ ARG PG_INSTALL_VERSION=17
 #
 # Define the base OS image in a single place.
 #
-FROM debian:13.4-slim AS base
+FROM debian:13.5-slim AS base
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 #
