@@ -305,11 +305,15 @@ rm -v "${KEA_DHCP_DATA_DIR}*.bak"
 ```
 
 ### Debug Builds
-If Kea crashes it might be of interest to collect a coredump to inspect further.
-A detailed guide on how to properly configure the host to save these coredump
-files may be found [here][40], and a Docker image with all the debug symbols
-intact can be obtained by just building the relevant non-release
-[Makefile](./Makefile) target.
+ISC has a guide on what to collect and how to report crashes of their different
+programs here: https://kb.isc.org/docs/aa-00340
+
+For programs running inside Docker containers it might not be as straight
+forward to collect the coredump files requested, so a detailed guide on how to
+properly configure the host to save these coredump files may be found
+[here][40]. A binary (inside a Docker image) with all the debug symbols intact
+can be obtained by just building the relevant non-release [Makefile](./Makefile)
+target.
 
 
 
