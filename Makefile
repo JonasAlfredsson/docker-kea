@@ -13,59 +13,59 @@ all-alpine: dhcp4-slim-alpine dhcp4-alpine dhcp6-slim-alpine dhcp6-alpine dhcp-d
 
 .PHONY: dhcp4-slim
 dhcp4-slim:
-	./build.sh "dhcp4-slim" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp4-slim" $(KEA_VERSION)
 
 .PHONY: dhcp4-slim-alpine
 dhcp4-slim-alpine:
-	./build.sh "dhcp4-slim" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp4-slim" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp4
 dhcp4:
-	./build.sh "dhcp4" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp4" $(KEA_VERSION)
 
 .PHONY: dhcp4-alpine
 dhcp4-alpine:
-	./build.sh "dhcp4" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp4" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp6-slim
 dhcp6-slim:
-	./build.sh "dhcp6-slim" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp6-slim" $(KEA_VERSION)
 
 .PHONY: dhcp6-slim-alpine
 dhcp6-slim-alpine:
-	./build.sh "dhcp6-slim" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp6-slim" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp6
 dhcp6:
-	./build.sh "dhcp6" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp6" $(KEA_VERSION)
 
 .PHONY: dhcp6-alpine
 dhcp6-alpine:
-	./build.sh "dhcp6" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp6" $(KEA_VERSION) "alpine"
 
 .PHONY: dhcp-ddns
 dhcp-ddns:
-	./build.sh "dhcp-ddns" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp-ddns" $(KEA_VERSION)
 
 .PHONY: dhcp-ddns-alpine
 dhcp-ddns-alpine:
-	./build.sh "dhcp-ddns" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "dhcp-ddns" $(KEA_VERSION) "alpine"
 
 .PHONY: admin
 admin:
-	./build.sh "admin" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "admin" $(KEA_VERSION)
 
 .PHONY: admin-alpine
 admin-alpine:
-	./build.sh "admin" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "admin" $(KEA_VERSION) "alpine"
 
 .PHONY: hooks
 hooks:
-	./build.sh "hooks" $(KEA_VERSION)
+	KEA_BUILD_TYPE=debug ./build.sh "hooks" $(KEA_VERSION)
 
 .PHONY: hooks-alpine
 hooks-alpine:
-	./build.sh "hooks" $(KEA_VERSION) "alpine"
+	KEA_BUILD_TYPE=debug ./build.sh "hooks" $(KEA_VERSION) "alpine"
 
 .PHONY: release
 release:

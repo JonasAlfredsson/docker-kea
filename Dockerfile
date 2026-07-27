@@ -72,10 +72,11 @@ RUN curl -LORf "https://ftp.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.ta
 WORKDIR /kea-${KEA_VERSION}
 
 # Configure with all the settings we want.
+ARG KEA_BUILD_TYPE
 RUN meson setup build \
-    --buildtype release \
+    --buildtype "${KEA_BUILD_TYPE}" \
     --install-umask 0027 \
-    --strip \
+    $(if [ "${KEA_BUILD_TYPE}" != "debug" ]; then echo "--strip"; fi) \
     --prefix /usr/local \
     --libdir /usr/local/lib \
     -D mysql=enabled \

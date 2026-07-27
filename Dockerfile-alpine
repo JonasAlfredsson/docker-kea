@@ -60,10 +60,11 @@ RUN tar xpf kea-${KEA_VERSION}.tar.xz
 WORKDIR /kea-${KEA_VERSION}
 
 # Configure with all the settings we want.
+ARG KEA_BUILD_TYPE
 RUN meson setup build \
-    --buildtype release \
+    --buildtype "${KEA_BUILD_TYPE}" \
     --install-umask 0027 \
-    --strip \
+    $(if [ "${KEA_BUILD_TYPE}" != "debug" ]; then echo "--strip"; fi) \
     --prefix /usr/local \
     --libdir /usr/local/lib \
     -D mysql=enabled \

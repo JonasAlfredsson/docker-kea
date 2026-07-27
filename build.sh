@@ -15,12 +15,14 @@ set -e
 : ${KEA_EXECUTABLE:="${1}"}
 : ${KEA_VERSION:="${2}"}
 : ${ALPINE_TAG:="${3}"}
+: ${KEA_BUILD_TYPE:="release"}
 
 # Feed all the relevant information to the `docker build` command, and tag it
 # with something appropriate.
 docker build -f Dockerfile"$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     -t "kea-${KEA_EXECUTABLE}:local$(if [ -n "${ALPINE_TAG}" ]; then echo "-alpine"; fi)" \
     --build-arg KEA_VERSION=${KEA_VERSION} \
+    --build-arg KEA_BUILD_TYPE=${KEA_BUILD_TYPE} \
     --target "${KEA_EXECUTABLE}" \
     --pull \
     ./

@@ -304,6 +304,13 @@ cp "${KEA_DHCP_DATA_DIR}"*.bak /secure/location/
 rm -v "${KEA_DHCP_DATA_DIR}*.bak"
 ```
 
+### Debug Builds
+If Kea crashes it might be of interest to collect a coredump to inspect further.
+A detailed guide on how to properly configure the host to save these coredump
+files may be found [here][40], and a Docker image with all the debug symbols
+intact can be obtained by just building the relevant non-release
+[Makefile](./Makefile) target.
+
 
 
 
@@ -346,3 +353,4 @@ rm -v "${KEA_DHCP_DATA_DIR}*.bak"
 [37]: https://github.com/JonasAlfredsson/docker-kea/issues/68
 [38]: https://gitlab.isc.org/isc-projects/kea/-/wikis/Release-Notes/release-notes-3.1.8
 [39]: https://kea.readthedocs.io/en/kea-3.0.3/arm/agent.html
+[40]: https://gist.github.com/JonasAlfredsson/4d3cb33ea7c0173f11f9463af95454ca
