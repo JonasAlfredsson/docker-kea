@@ -1,0 +1,29 @@
+{
+  "Dhcp4": {
+    "interfaces-config": {
+      "interfaces": ["eth0"],
+      "dhcp-socket-type": "raw"
+    },
+    "valid-lifetime": 4000,
+    "renew-timer": 1000,
+    "rebind-timer": 2000,
+    "lease-database": {
+      "type": "memfile",
+      "persist": false
+    },
+    "subnet4": [{
+      "id": 1,
+      "subnet": "192.0.2.0/24",
+      "pools": [{"pool": "192.0.2.10-192.0.2.20"}]
+    }],
+    "reservations": [],
+    "loggers": [{
+      "name": "kea-dhcp4",
+      "output_options": [{
+        "output": "stdout",
+        "pattern": "%D{%Y-%m-%d %H:%M:%S.%q} %-5p [%c/%i.%t] %m\n"
+      }],
+      "severity": "INFO"
+    }]
+  }
+}

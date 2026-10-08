@@ -9,6 +9,10 @@ on:
     paths:
       - "Dockerfile*"
       - "Makefile"
+      - "build.sh"
+      - "entrypoint.sh"
+      - ".github/scripts/**"
+      - ".github/workflows/simple_build_test.yml"
 
 jobs:
   docker_buildx_debian:
@@ -27,6 +31,9 @@ jobs:
       - name: Check for new/changed hook libraries
         run: docker run kea-hooks:local ls -1 /hooks | diff .github/kea_hook_libraries.list -
 
+      - name: Test DHCPv4 offer and Kea logs
+        timeout-minutes: 5
+        run: bash .github/scripts/test_dhcp4.sh kea-dhcp4:local
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
@@ -43,3 +50,7 @@ jobs:
 
       - name: Check for new/changed hook libraries
         run: docker run kea-hooks:local-alpine ls -1 /hooks | diff .github/kea_hook_libraries.list -
+
+      - name: Test DHCPv4 offer and Kea logs
+        timeout-minutes: 5
+        run: bash .github/scripts/test_dhcp4.sh kea-dhcp4:local-alpine
