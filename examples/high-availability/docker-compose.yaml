@@ -1,13 +1,13 @@
 version: '2'
 # This is an advanced setup which starts two instances of the IPv4 Kea DHCP
-# service, along with a Control Agent service for each of them that can receive
-# lease updates from the other peer.
+# service, along with matching control sockets in order for them to communicate
+# with each other.
 services:
   dhcp-1:
     image: jonasal/kea-dhcp4:3
     restart: unless-stopped
     ports:
-      - 8081:8080
+      - 8081:8084
     environment:
       - THIS_SERVER_NAME=dhcp-1
     command: -c /kea/config/dhcp4.json
@@ -23,7 +23,7 @@ services:
     image: jonasal/kea-dhcp4:3
     restart: unless-stopped
     ports:
-      - 8082:8080
+      - 8082:8084
     environment:
       - THIS_SERVER_NAME=dhcp-2
     command: -c /kea/config/dhcp4.json

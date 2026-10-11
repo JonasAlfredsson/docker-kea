@@ -27,7 +27,11 @@
             {
                 "socket-type": "http",
                 "socket-address": "127.0.0.1",
-                "socket-port": 8080
+                "socket-port": 8084,
+                "authentication": {
+                    "type": "basic",
+                    "clients": []
+                }
             }
         ],
 

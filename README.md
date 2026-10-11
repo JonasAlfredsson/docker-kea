@@ -158,24 +158,42 @@ setting is defined in their configuration file:
     {
         "socket-type": "http",
         "socket-address": "127.0.0.1",
-        "socket-port": 8080
+        "socket-port": 8084,
+        "authentication": {
+            "type": "basic",
+            "clients": []
+        }
     }
 ],
 ```
 
-> There exists a "unix" type socket as well, but I suggest you stick with the
-> "http" one, and it is not recommended to have more than one active. This was
-> used when the [Control Agent][39] service was needed to be able to use HTTP.
+There exists a "unix" type socket as well, but I suggest you stick with the
+"http" one, and it is not recommended to have more than one active. This was
+used when the [Control Agent][39] service was needed to be able to use HTTP.
 
-An example of how to do this can be found in the [advanced/](./examples/advanced/)
-folder along with the [docker-compose.yaml](./examples/advanced/docker-compose.yaml)
-file where a reverse proxy (for HTTPS) also is set up. When that is all up and
-running you should be able to make queries like this:
+Important note here is that since Kea 3.0.0 you must define the `authentication`
+part, else it will not accept the configuration, however, defining an empty
+`clients` list means it accept any connection.
+
+It is possible to offload this "basic auth" to a reverse proxy instead if you
+want, and an example of how to do this can be found in the
+[advanced/](./examples/advanced/) folder along with the
+[docker-compose.yaml](./examples/advanced/docker-compose.yaml) file. When that
+is all up and running you should be able to make queries like this:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+    -u jonas:password --insecure \
+    -d '{ "command": "config-get" }' \
+    https://localhost/dhcp4
+```
+
+or bypass the proxy just to experiment:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" \
     -d '{ "command": "config-get" }' \
-    http://localhost:8080/
+    http://localhost:8084
 ```
 
 More information about this may be found in the Management API section of the
