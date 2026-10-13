@@ -7,6 +7,23 @@ ARG PG_INSTALL_VERSION=17
 FROM debian:13.7-slim AS base
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
+# In Debian the APT package installs the user "_kea", with uid 101 and gid 101,
+# but the leading underscore in the name would require us to add the
+# "--force-badname" flag which seems suboptimal. I have therefore made the
+# decision to use the name without this underscore.
+# Currently this does not make Kea run as this user, but we prepare for it.
+ENV KEA_USER=kea
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -qq -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        adduser \
+    && \
+    addgroup --system --gid 101 ${KEA_USER} && \
+    adduser --system --disabled-login --ingroup ${KEA_USER} --no-create-home \
+            --gecos "Kea user" --shell /bin/false --uid 101 ${KEA_USER}
+
 #
 # The builder step is where Kea is compiled.
 #
@@ -16,11 +33,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Install all packages needed to build Kea.
 ARG PG_INSTALL_VERSION
 RUN apt-get update && apt-get install -qq -y \
-        apt-transport-https \
-        gnupg2 \
-    && apt-get install -qq -y \
         build-essential \
-        curl \
+        gnupg2 \
         libboost-system-dev \
         libkrb5-dev \
         liblog4cplus-dev \
@@ -105,28 +119,17 @@ RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
 FROM base AS common
 ARG DEBIAN_FRONTEND=noninteractive
 
-# In Debian the APT package installs the user "_kea", with uid 101 and gid 101,
-# but the leading underscore in the name would require us to add the
-# "--force-badname" flag which seems suboptimal. I have therefore made the
-# decision to use the name without this underscore.
-# Currently this does not make Kea run as this user, but we prepare for it.
-ENV KEA_USER=kea \
 # Since 2.7.9/2.6.3/2.4.2 we need to define these variables, else Kea will not
 # start: https://github.com/JonasAlfredsson/docker-kea/issues/82
-    KEA_DHCP_DATA_DIR=/kea/leases \
+ENV KEA_DHCP_DATA_DIR=/kea/leases \
     KEA_LOG_FILE_DIR=/kea/logs \
     KEA_LEGAL_LOG_DIR=/kea/logs \
     KEA_CONTROL_SOCKET_DIR=/kea/sockets
 
-RUN apt-get update && apt-get install -y \
-        adduser \
-    && \
-    addgroup --system --gid 101 ${KEA_USER} && \
-    adduser --system --disabled-login --ingroup ${KEA_USER} --no-create-home --gecos "Kea user" --shell /bin/false --uid 101 ${KEA_USER} && \
 # We then need to install all the runtime dependencies of Kea.
 # This is not identical to what is pulled in when doing an apt-get install of
 # the official package, but it appears to work fine.
-    apt-get install -y \
+RUN apt-get install -y \
         libboost-system1.88.0 \
         libkrb5-3 \
         liblog4cplus-2.0.5t64 \
