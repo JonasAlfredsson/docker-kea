@@ -72,7 +72,7 @@ WORKDIR /kea-${KEA_VERSION}
 ARG KEA_BUILD_TYPE
 RUN meson setup build \
     --buildtype "${KEA_BUILD_TYPE}" \
-    --install-umask 0027 \
+    --install-umask 0022 \
     $(if [ "${KEA_BUILD_TYPE}" != "debug" ]; then echo "--strip"; fi) \
     --prefix /usr/local \
     --libdir /usr/local/lib \
