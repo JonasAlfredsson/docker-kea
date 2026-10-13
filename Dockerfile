@@ -104,13 +104,9 @@ RUN meson setup build \
 # easier to experiment.
 # NOTE: This will take ~5 hours for arm/v7 on an average 4 core desktop.
 RUN meson compile -C build
-RUN meson install -C build
 
-# There are a couple additional "hook" features located in this folder which
-# will most likely not be needed by the average user, so let's exclude them
-# from the first COPY step later so we can make a "slim" image.
-RUN mv "/usr/local/lib/kea/hooks" / && mkdir "/usr/local/lib/kea/hooks"
-
+# "Install" to a easily accessible location for later copying into the final image.
+RUN meson install -C build --destdir "/kea-install"
 
 
 #
@@ -163,16 +159,15 @@ RUN apt-get install -y \
 # C++ header files in the "include" folder. There are a couple of folders used
 # during runtime in "var" as well, but we created them above with the Kea user
 # as the owner instead.
-COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/local/include/kea /usr/local/include/kea
-
+RUN --mount=type=bind,from=builder,source=/kea-install,target=/kea-install \
+    cp -a /kea-install/usr/local/lib /usr/local/ && \
+    cp -a /kea-install/usr/local/include/kea /usr/local/include/kea && \
+# Empty out the hooks folder at this stage to be able to make a "slim" image.
+    rm -v /usr/local/lib/kea/hooks/* && \
 # As a final step we will need to run ldconfig to make sure that all the Kea
 # libraries that we copied are correctly linked. This is an extra config
 # file which adds a folder to the standard search locations.
-#
-# NOTE: The hooks folder is empty right now, to save some space, but it may be
-#       populated by the user later.
-RUN echo "/usr/local/lib/kea/hooks" > /etc/ld.so.conf.d/kea.conf && \
+    echo "/usr/local/lib/kea/hooks" > /etc/ld.so.conf.d/kea.conf && \
     ldconfig
 
 # Finally we copy the common entrypoint script which will read an environment
@@ -188,13 +183,13 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 #
 FROM common AS dhcp4-slim
 ENV KEA_EXECUTABLE=dhcp4
-COPY --from=builder /usr/local/sbin/kea-dhcp4 /usr/local/sbin/kea-lfc /usr/local/sbin/
+COPY --from=builder /kea-install/usr/local/sbin/kea-dhcp4 /kea-install/usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
 # The DHCP4 service image with all relevant hooks included.
 #
 FROM dhcp4-slim AS dhcp4
-COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
+COPY --from=builder /kea-install/usr/local/lib/kea/hooks/* /usr/local/lib/kea/hooks/
 
 
 #
@@ -202,13 +197,13 @@ COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
 #
 FROM common AS dhcp6-slim
 ENV KEA_EXECUTABLE=dhcp6
-COPY --from=builder /usr/local/sbin/kea-dhcp6 /usr/local/sbin/kea-lfc /usr/local/sbin/
+COPY --from=builder /kea-install/usr/local/sbin/kea-dhcp6 /kea-install/usr/local/sbin/kea-lfc /usr/local/sbin/
 
 #
 # The DHCP6 service image with all relevant hooks included.
 #
 FROM dhcp6-slim AS dhcp6
-COPY --from=builder /hooks/* /usr/local/lib/kea/hooks/
+COPY --from=builder /kea-install/usr/local/lib/kea/hooks/* /usr/local/lib/kea/hooks/
 
 
 #
@@ -222,8 +217,8 @@ RUN apt-get update && apt-get install -qq -y \
         postgresql-client-${PG_INSTALL_VERSION} \
         mariadb-client \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local/sbin/kea-admin /usr/local/sbin/
-COPY --from=builder /usr/local/share/kea/scripts /usr/local/share/kea/scripts
+COPY --from=builder /kea-install/usr/local/sbin/kea-admin /usr/local/sbin/
+COPY --from=builder /kea-install/usr/local/share/kea/scripts /usr/local/share/kea/scripts
 
 
 #
@@ -231,12 +226,12 @@ COPY --from=builder /usr/local/share/kea/scripts /usr/local/share/kea/scripts
 #
 FROM common AS dhcp-ddns
 ENV KEA_EXECUTABLE=dhcp-ddns
-COPY --from=builder /usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
+COPY --from=builder /kea-install/usr/local/sbin/kea-dhcp-ddns /usr/local/sbin/
 
 
 #
 # The Hooks image.
 #
 FROM base AS hooks
-COPY --from=builder /hooks /hooks
+COPY --from=builder /kea-install/usr/local/lib/kea/hooks /hooks
 CMD [ "ls", "-ahl", "/hooks" ]
