@@ -132,6 +132,7 @@ RUN apt-get install -y \
         libmariadb3 \
         libpq5 \
         libssl3t64 \
+        util-linux \
     && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
