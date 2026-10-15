@@ -14,7 +14,7 @@ RUN set -e && apk add --no-cache \
         curl \
     && \
     addgroup -S -g 101 ${KEA_USER} && \
-    adduser -S -D -G ${KEA_USER} -H -g "Kea user" -s /sbin/nologin -u 101 ${KEA_USER}
+    adduser -S -D -G ${KEA_USER} -H -g "Kea user" -s /sbin/nologin -u 100 ${KEA_USER}
 
 #
 # The builder step is where Kea is compiled.
