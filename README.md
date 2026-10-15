@@ -51,7 +51,12 @@ allow for some customization, however, some of them should not be touched.
 
 #### Executable Information
 - `KEA_EXECUTABLE`: Should **not** be modified, is used by [`entrypoint.sh`](./entrypoint.sh).
-- `KEA_USER`: Currently does nothing, might be used in the future.
+- `KEA_CHANGE_USER`: Set to `true` to run the Kea service as `KEA_USER` instead of root (Default: `false`).
+- `KEA_USER`: User for the Kea service when `KEA_CHANGE_USER=true` (Default: `kea`).
+- `KEA_GROUP`: Optional group for the Kea service when `KEA_CHANGE_USER=true` (Default: the value of `KEA_USER`).
+
+See [Non-Root Execution](#non-root-execution) for the required capabilities
+and directory permissions.
 
 #### Data Directories
 Because of strict [path limitations][31] these variables need to be defined in
@@ -63,14 +68,58 @@ order to allow us to use the directory structure mentioned
 - `KEA_LEGAL_LOG_DIR`: Output directory of forensic log files (Default: `/kea/logs`)
 - `KEA_CONTROL_SOCKET_DIR`: Directory for any sockets created (Default: `/kea/sockets`)
 
+### Non-Root Execution
+Kea runs as root by default. Set `KEA_CHANGE_USER=true` to have the entrypoint
+use `setpriv` to switch to `KEA_USER` (default: `kea`) and `KEA_GROUP` (default:
+the value of `KEA_USER`) before executing Kea. The folders created inside the
+images are owned by `kea` with UID:GID `101:101` on Debian and `100:101` on
+Alpine, so these will need to be modified if you intend to run with any other
+UID:GID combination.
+
+> IMPORTANT: It is only the final executable that changes user, anything before
+> that, like scripts inside `/entrypoint.d`, still run as "root" by default.
+> Use the `--user` argument when starting the container to force everything to
+> run as that user (then the `KEA_CHANGE_USER` should remain `false`).
+> This bypasses the capability setup described below; workloads needing raw
+> sockets require separately configured capability handling.
+
+In order to be able to use `dhcp-socket-type: "raw"` the container needs these
+capabilities:
+
+- `NET_RAW`: Allows raw packet sockets, needed for DHCP4's raw socket mode.
+- `NET_BIND_SERVICE`: Allows binding privileged ports, including DHCP4's
+    fallback UDP socket on port 67 and DHCP6's server port 547.
+
+Running the main service as non-root and restricting its capabilities can
+harden the container. Docker's default capability set normally already
+includes those needed here, but an explicitly restricted launch can use:
+
+```bash
+docker run -it --rm \
+        --cap-drop=ALL \
+        --cap-add=SETUID \
+        --cap-add=SETGID \
+        --cap-add=NET_RAW \
+        --cap-add=NET_BIND_SERVICE \
+        -e KEA_CHANGE_USER=true \
+        -v "$(pwd)/examples/simple:/kea/config:ro" \
+        jonasal/kea-dhcp4:3 \
+        -c /kea/config/dhcp4.json
+```
+
+`SETUID` and `SETGID` allow the root launcher to change user, primary group
+and supplementary groups. After the switch and execution, ordinary non-root
+Kea runs with only the two network capabilities in its permitted and effective
+sets.
+
 ### Useful Directories
 There are a few directories present inside the images that may be utilized if
 your usecase calls for it.
 
 > This image creates the user `kea` with uid:gid `101:101`/`100:101`
-> (Debian/Alpine) which may be used for non-root execution in the future,
-> however, Kea runs as root right now since it needs high privilege to open
-> raw sockets.
+> (Debian/Alpine). Kea runs as root by default; set `KEA_CHANGE_USER=true` to
+> run it as this user, with the required container capabilities and directory
+> permissions configured.
 
 - `/kea/config`: Mount this to the directory with all your configuration files.
 - `/kea/leases`: Good location for the leases "[memfile][34]" if used.
