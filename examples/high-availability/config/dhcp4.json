@@ -63,6 +63,13 @@
                         // takes over if the primary becomes unavailable.
                         "mode": "hot-standby",
 
+                        // Configure mutual TLS for secure communication between
+                        // the HA peers. See the create_certs.sh script for details.
+                        "trust-anchor": "/kea/ca.crt",
+                        "cert-file": "/kea/tls/certificate.crt",
+                        "key-file": "/kea/tls/private.key",
+                        "require-client-certs": true,
+
                         // Heartbeat is to be sent every 10 seconds if no other
                         // control commands are transmitted.
                         "heartbeat-delay": 10000,
@@ -106,7 +113,7 @@
                                 // sockets defined.
                                 // This must use an IP and not a DNS name.
                                 // HTTPS config: https://kea.readthedocs.io/en/latest/arm/hooks.html#https-support
-                                "url": "http://10.10.10.2:8881",
+                                "url": "https://10.10.10.2:8881/",
 
                                 // This server is primary. The other one must be
                                 // secondary.
@@ -116,7 +123,7 @@
                             // This is the configuration of the HA peer.
                             {
                                 "name": "dhcp-2",
-                                "url": "http://10.10.10.3:8881",
+                                "url": "https://10.10.10.3:8881/",
                                 "role": "standby"
                             }
                         ]

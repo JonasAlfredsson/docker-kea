@@ -1,7 +1,7 @@
-version: '2'
 # This is an advanced setup which starts two instances of the IPv4 Kea DHCP
-# service, along with matching control sockets in order for them to communicate
-# with each other.
+# service with dedicated mutual TLS listeners for peer communication.
+#
+# IMPORTANT: Generate credentials first with `sudo bash create_certs.sh`
 services:
   dhcp-1:
     image: jonasal/kea-dhcp4:3
@@ -14,6 +14,8 @@ services:
     volumes:
       - ./entrypoint.d:/entrypoint.d:ro
       - ./config:/kea/config:ro
+      - ./tls/ca.crt:/kea/ca.crt:ro
+      - ./tls/dhcp-1:/kea/tls:ro
       - leases-1:/kea/leases
     networks:
       kea-testing:
