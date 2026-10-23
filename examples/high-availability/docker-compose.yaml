@@ -30,12 +30,27 @@ services:
     volumes:
       - ./entrypoint.d:/entrypoint.d:ro
       - ./config:/kea/config:ro
+      - ./tls/ca.crt:/kea/ca.crt:ro
+      - ./tls/dhcp-2:/kea/tls:ro
       - leases-2:/kea/leases
     networks:
       kea-testing:
         ipv4_address: 10.10.10.3
 
-volumes:
+  # Start a separate container on the same network where you can attach and run
+  # tests from. Example:
+  # docker exec -it high-availability-dhcp-tester-1 nmap --script broadcast-dhcp-discover
+  dhcp-tester:
+    image: jonasal/network-tools:latest
+    init: true
+    restart: unless-stopped
+    networks:
+      kea-testing:
+        ipv4_address: 10.10.10.4
+    command: ["sh", "-c", "echo \"Starting tester container\" && exec sleep infinity"]
+
+
+volumes: # Remove with `docker compose down --volumes`
   leases-1:
   leases-2:
 
