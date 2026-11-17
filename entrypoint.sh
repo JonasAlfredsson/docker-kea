@@ -29,5 +29,17 @@ find "/entrypoint.d/" -follow -type f -print | sort -V | while read -r f; do
     esac
 done
 
-# Feed all the command parameters directly to the defined executable.
-exec /usr/local/sbin/kea-${KEA_EXECUTABLE} $@
+# Use exec to make sure the Kea process inherits PID 1.
+kea_command="/usr/local/sbin/kea-${KEA_EXECUTABLE}"
+if [ "${KEA_CHANGE_USER:-false}" = "true" ]; then
+    # Retain the network capabilities when executing Kea as the configured user.
+    exec setpriv \
+        --reuid="${KEA_USER}" \
+        --regid="${KEA_GROUP:-${KEA_USER}}" \
+        --init-groups \
+        --inh-caps=-all,+net_raw,+net_bind_service \
+        --ambient-caps=-all,+net_raw,+net_bind_service \
+        "${kea_command}" "$@"
+else
+    exec "${kea_command}" "$@"
+fi

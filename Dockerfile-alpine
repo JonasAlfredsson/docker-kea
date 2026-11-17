@@ -119,6 +119,7 @@ RUN apk add --no-cache \
         libstdc++ \
         libpq \
         openssl \
+        setpriv \
     && \
 # Make sure some directories mentioned in the documentation are present and
 # owned by the Kea user.
